@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="雅思冲刺7.0">
+    <title>IELTS 6.5/7.0 专属冲刺系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .tab-active { border-bottom: 3px solid #4F46E5; color: #4F46E5; font-weight: 700; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-16">
+
+    <!-- 顶部激励与状态栏 -->
+    <header class="bg-indigo-600 text-white shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div>
+                <h1 class="text-xl font-bold flex items-center gap-2">
+                    🚀 雅思 5.5 ➔ 7.0 专属提分驾驶舱
+                </h1>
+                <p class="text-indigo-200 text-xs mt-1">当前战力：口语6.0(优势) | 听写5.5(稳升) | 阅读4.5(核心突破口)</p>
+            </div>
+            <div class="flex items-center gap-3 bg-indigo-700 px-4 py-2 rounded-xl w-full sm:w-auto justify-between sm:justify-start">
+                <div>
+                    <div class="text-xs text-indigo-200">累计坚持</div>
+                    <div class="text-lg font-bold" id="streak-days">0 天</div>
+                </div>
+                <button onclick="checkIn()" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white text-sm px-4 py-2 rounded-lg font-medium transition shadow">
+                    ✨ 今日打卡
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 导航栏 -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+        <div class="max-w-5xl mx-auto px-2 sm:px-4 flex space-x-2 sm:space-x-6 overflow-x-auto">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="py-3.5 px-3 text-sm tab-active whitespace-nowrap">📊 每日任务与诊断</button>
+            <button onclick="switchTab('school')" id="tab-school" class="py-3.5 px-3 text-sm text-slate-500 hover:text-slate-800 whitespace-nowrap">🏫 在校碎片刷词 (15min)</button>
+            <button onclick="switchTab('home')" id="tab-home" class="py-3.5 px-3 text-sm text-slate-500 hover:text-slate-800 whitespace-nowrap">🏠 在家限时训练 (60min)</button>
+            <button onclick="switchTab('mistakes')" id="tab-mistakes" class="py-3.5 px-3 text-sm text-slate-500 hover:text-slate-800 whitespace-nowrap">📓 错题与数据同步</button>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-4 mt-6">
+
+        <!-- 1. 看板与每日清单 -->
+        <section id="sec-dashboard" class="space-y-6">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border-2 border-red-200 bg-red-50/20">
+                    <div class="text-xs text-red-600 font-bold">🎯 头号攻坚：阅读</div>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span class="text-2xl font-extrabold text-slate-800">4.5</span>
+                        <span class="text-sm text-emerald-600 font-bold">➔ 6.5+</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">每篇13题需做对9题。抓紧“同义替换”与“20分钟配速”。</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-amber-200">
+                    <div class="text-xs text-amber-600 font-bold">🎧 重点提分：听力</div>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span class="text-2xl font-extrabold text-slate-800">5.5</span>
+                        <span class="text-sm text-emerald-600 font-bold">➔ 6.5+</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">消灭 Part 1/2 拼写单复数失误，精听 Part 3 转折词。</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                    <div class="text-xs text-indigo-600 font-bold">✍️ 逻辑打磨：写作</div>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span class="text-2xl font-extrabold text-slate-800">5.5</span>
+                        <span class="text-sm text-emerald-600 font-bold">➔ 6.0+</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">底子很好！重点强化大作文主旨段因果链条展开。</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-200 bg-emerald-50/20">
+                    <div class="text-xs text-emerald-600 font-bold">🌟 绝对优势：口语</div>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span class="text-2xl font-extrabold text-slate-800">6.0</span>
+                        <span class="text-sm text-emerald-600 font-bold">➔ 6.5</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">语感极佳！保持自然流利度，补充 Part 3 辩证词伙。</p>
+                </div>
+            </div>
+
+            <!-- 每日微习惯 -->
+            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-base font-bold text-slate-800">📅 今日通关任务（完成后打勾）</h2>
+                    <button onclick="resetDailyTasks()" class="text-xs text-indigo-600 hover:underline">重置今日勾选</button>
+                </div>
+                <div class="space-y-3" id="task-list">
+                    <label class="flex items-start sm:items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                        <input type="checkbox" id="task-1" class="mt-1 sm:mt-0 w-5 h-5 text-indigo-600 rounded" onchange="saveTasks()">
+                        <span class="text-sm"><b>【在校碎片 10min】</b>在“在校模式”下刷完 15 组剑桥阅读高频同义替换词</span>
+                    </label>
+                    <label class="flex items-start sm:items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                        <input type="checkbox" id="task-2" class="mt-1 sm:mt-0 w-5 h-5 text-indigo-600 rounded" onchange="saveTasks()">
+                        <span class="text-sm"><b>【在校碎片 10min】</b>完成 3 句真题长难句“3秒抓主干”剥洋葱训练</span>
+                    </label>
+                    <label class="flex items-start sm:items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                        <input type="checkbox" id="task-3" class="mt-1 sm:mt-0 w-5 h-5 text-indigo-600 rounded" onchange="saveTasks()">
+                        <span class="text-sm"><b>【在家整块 25min】</b>开启20分钟倒计时精做 1 篇剑桥阅读，并将没看出的替换词记入错题本</span>
+                    </label>
+                    <label class="flex items-start sm:items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                        <input type="checkbox" id="task-4" class="mt-1 sm:mt-0 w-5 h-5 text-indigo-600 rounded" onchange="saveTasks()">
+                        <span class="text-sm"><b>【在家睡前 15min】</b>听力 Section 1/3 核心词听写，或口语当季题库自言自语练 1 道题</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 在校碎片模式 -->
+        <section id="sec-school" class="hidden space-y-6">
+            <!-- 同义替换闪卡 -->
+            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <span class="bg-red-100 text-red-700 text-xs px-2.5 py-1 rounded-full font-bold">阅读 4.5 ➔ 6.5 核心密码</span>
+                        <h2 class="text-base font-bold text-slate-800 mt-2">🔥 剑桥真题“同义替换”条件反射训练</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-600" id="card-progress">1 / 30</span>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 sm:p-10 text-center my-4 min-h-[210px] flex flex-col justify-center">
+                    <div class="text-xs text-slate-400 mb-1">当你在【题干 Question】看到：</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold text-indigo-600 my-2" id="syn-q">resemble</div>
+                    
+                    <div id="syn-answer" class="hidden border-t border-slate-200 pt-4 mt-4 animate-fade-in">
+                        <div class="text-xs text-slate-400 mb-1">立即去【原文 Passage】寻找：</div>
+                        <div class="text-lg sm:text-xl font-bold text-emerald-600" id="syn-a">look like / be similar to / bear a resemblance to</div>
+                        <div class="text-xs sm:text-sm text-slate-600 mt-2 bg-white inline-block px-3 py-1 rounded border border-slate-100" id="syn-cn">含义：相似，像...一样（剑桥阅读极高频考点）</div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-3 sm:gap-4">
+                    <button onclick="prevSynCard()" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2.5 rounded-lg text-sm font-medium">⬅ 上一个</button>
+                    <button onclick="showSynAnswer()" class="bg-amber-500 text-white hover:bg-amber-600 px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm">👀 看答案</button>
+                    <button onclick="nextSynCard()" class="bg-indigo-600 text-white hover:bg-indigo-700 px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm">下一个 ➔</button>
+                </div>
+            </div>
+
+            <!-- 长难句剥洋葱 -->
+            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">专治阅读超时、回读</span>
+                        <h2 class="text-base font-bold text-slate-800 mt-2">🧅 剑桥长难句“一秒过滤修饰看主干”</h2>
+                    </div>
+                    <span class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-600" id="sen-progress">1 / 6</span>
+                </div>
+                
+                <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border border-slate-200 text-sm sm:text-base leading-relaxed my-3" id="sentence-box">
+                </div>
+                
+                <div id="sentence-tip" class="text-xs sm:text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 p-3 rounded-lg my-3 hidden"></div>
+
+                <div class="mt-4 flex flex-wrap gap-3">
+                    <button onclick="highlightCore()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold hover:bg-emerald-700 shadow-sm">🎯 一键高亮句子主干</button>
+                    <button onclick="nextSentence()" class="bg-slate-200 text-slate-700 px-5 py-2.5 rounded-lg text-xs sm:text-sm font-medium hover:bg-slate-300">换一句真题 ➔</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 在家整块模式 -->
+        <section id="sec-home" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-center">
+                <span class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full font-bold">阅读提速训练器</span>
+                <h2 class="text-lg font-bold text-slate-800 mt-2">⏱️ 单篇阅读 20 分钟标准配速器</h2>
+                <p class="text-xs text-slate-500 mt-1 max-w-xl mx-auto">阅读4.5分最大的敌人是“从头到尾逐字翻译”。请打开剑桥真题，点击下方开始：严格执行【前2分钟看标题与首段】➔【15分钟平行阅读找定位词】➔【最后3分钟蒙猜收尾】。</p>
+                
+                <div class="text-6xl font-mono font-extrabold text-indigo-600 my-6 tracking-wider" id="timer-display">20:00</div>
+                
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button onclick="startTimer(20)" class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-indigo-700 shadow">▶ 单篇限时 (20分钟)</button>
+                    <button onclick="startTimer(60)" class="bg-slate-800 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-900 shadow">▶ 套题模考 (60分钟)</button>
+                    <button onclick="resetTimer()" class="bg-slate-200 text-slate-700 px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-300">重置</button>
+                </div>
+            </div>
+
+            <!-- 平行阅读法口诀与优势科目提醒 -->
+            <div class="grid sm:grid-cols-2 gap-4">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-sm text-red-600">🧭 阅读 4.5 ➔ 6.5 救命口诀（做题前必看）</h3>
+                    <ol class="text-xs text-slate-600 space-y-2 mt-3 list-decimal pl-4">
+                        <li><b>绝不先读全文！</b>直接看题目，划出人名、地名、年代、特殊名词作为定位词。</li>
+                        <li><b>顺序原则：</b>判断题(TFNG)、填空题、单选题全部是按原文顺序出题的！第2题答案一定在第1题和第3题中间。</li>
+                        <li><b>超过90秒找不到果断跳过：</b>阅读拿6.5分允许错10-12道题！放弃最难的3道题，保证简单题全对就是6.5分。</li>
+                    </ol>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-sm text-indigo-600">🎙️ 口语(6.0)与写作(5.5)保分升级秘籍</h3>
+                    <ul class="text-xs text-slate-600 space-y-2 mt-3 list-disc pl-4">
+                        <li><b>口语：</b>你的流利度已经是6分水平！Part 3 遇到没想过的问题，用 <i>"That's a tricky question, I suppose from an individual perspective..."</i> 争取思考时间。</li>
+                        <li><b>写作：</b>5.5到6.5的关键不是炫技长句，而是<b>不要跳跃逻辑</b>。把“因为A所以C”扩写成“因为A ➔ 导致了B状态 ➔ 进而引发了C结果”。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 错题本与跨设备同步 -->
+        <section id="sec-mistakes" class="hidden space-y-6">
+            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-base font-bold text-slate-800 mb-1">🔍 录入阅读/听力错题与替换词</h2>
+                <p class="text-xs text-slate-500 mb-4">每做完一篇阅读，必须把没看出来的 3-5 组同义替换记录在这里，考前一周只背这里！</p>
+                
+                <div class="grid sm:grid-cols-3 gap-3 mb-4">
+                    <input type="text" id="m-source" placeholder="题源 (如: 剑17 T2 P1)" class="border border-slate-300 rounded-lg px-3 py-2.5 text-sm">
+                    <select id="m-reason" class="border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white">
+                        <option value="同义替换没认出来">❌ 同义替换没认出来</option>
+                        <option value="定位超时/找错段">⏱️ 定位超时/找错段</option>
+                        <option value="长难句理解反了">🤯 长难句逻辑看反</option>
+                        <option value="听力拼写/单复数错误">🎧 听力拼写/单复数错误</option>
+                        <option value="TFNG过度推理">⚖️ TFNG 过度推理</option>
+                    </select>
+                    <input type="text" id="m-note" placeholder="收获 (如: modify = change)" class="border border-slate-300 rounded-lg px-3 py-2.5 text-sm">
+                </div>
+                <button onclick="addMistake()" class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-indigo-700 shadow-sm w-full sm:w-auto">+ 存入专属错题本</button>
+            </div>
+
+            <!-- 错题列表 -->
+            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold text-slate-800">📊 我的错题与同义替换积累库 (<span id="mistake-count">0</span>)</h3>
+                </div>
+                <div id="mistake-list" class="space-y-3 text-sm"></div>
+            </div>
+
+            <!-- 跨设备数据备份 -->
+            <div class="bg-slate-100 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="text-xs text-slate-600">
+                    💡 <b>在校/在家换设备同步：</b>可一键复制学习数据代码，发到微信并在另一台设备上导入。
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="exportData()" class="bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded text-xs font-medium hover:bg-slate-50">📤 导出备份码</button>
+                    <button onclick="importData()" class="bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded text-xs font-medium hover:bg-slate-50">📥 粘贴导入</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // 30组剑桥雅思阅读最核心高频同义替换词库
+        const synData = [
+            { q: "resemble", a: "look like / be similar to / bear a resemblance to", cn: "相似，像...一样（匹配题与判断题极高频）" },
+            { q: "accelerate", a: "speed up / increase the rate of", cn: "加速，促进" },
+            { q: "viable", a: "practical / feasible / workable / realistic", cn: "可行的，能实施的" },
+            { q: "adversely affect", a: "have a negative impact on / impair / damage", cn: "产生负面影响，损害" },
+            { q: "chronic", a: "long-term / persistent / lasting", cn: "长期的，慢性的" },
+            { q: "skeptical", a: "doubtful / question the validity of / unconvinced", cn: "持怀疑态度的（常考于学者观点题）" },
+            { q: "prior to", a: "before / previous to / precede", cn: "在...之前（时间顺序定位核心词）" },
+            { q: "trigger", a: "cause / lead to / give rise to / spark", cn: "引发，触发（因果关系必考）" },
+            { q: "obsolete", a: "out of date / no longer in use / outdated", cn: "过时的，淘汰的" },
+            { q: "abundance", a: "plenty of / a large amount of / ample", cn: "大量，丰富" },
+            { q: "scarce", a: "rare / limited / in short supply / insufficient", cn: "稀缺的，不足的" },
+            { q: "fluctuate", a: "vary / change continually / be unstable", cn: "波动，起伏不定" },
+            { q: "inevitable", a: "unavoidable / certain to happen", cn: "不可避免的，必然的" },
+            { q: "preserve", a: "protect / conserve / maintain / keep intact", cn: "保护，保存" },
+            { q: "eradicate", a: "eliminate / wipe out / get rid of completely", cn: "根除，消灭" },
+            { q: "detect", a: "spot / identify / notice / perceive", cn: "察觉，探测到，发现" },
+            { q: "artificial", a: "man-made / synthetic / manufactured", cn: "人造的，合成的" },
+            { q: "spontaneous", a: "unplanned / impulsive / automatic", cn: "自发的，无意识的" },
+            { q: "hinder", a: "impede / obstruct / hold back / hamper", cn: "阻碍，妨碍" },
+            { q: "boost", a: "enhance / promote / foster / stimulate", cn: "促进，提升，推动" },
+            { q: "initial", a: "first / premier / at the beginning / early", cn: "最初的，开始的" },
+            { q: "solely", a: "only / exclusively / merely / alone", cn: "唯一地，仅仅（判断题绝对词考点！）" },
+            { q: "alter", a: "change / modify / shift / adjust", cn: "改变，调整" },
+            { q: "crucial", a: "vital / essential / indispensable / key", cn: "至关重要的" },
+            { q: "conventional", a: "traditional / standard / orthodox", cn: "传统的，常规的" },
+            { q: "diverse", a: "various / a wide range of / distinct", cn: "多样的，不同的" },
+            { q: "fragile", a: "vulnerable / delicate / easily broken", cn: "脆弱的，易受伤害的" },
+            { q: "compensate for", a: "make up for / offset / balance", cn: "弥补，补偿" },
+            { q: "underestimate", a: "underrate / overlook the importance of", cn: "低估，轻视" },
+            { q: "unprecedented", a: "never seen before / novel / unique in history", cn: "史无前例的，空前的" }
+        ];
+        let curSyn = 0;
+
+        // 剑桥真题长难句库
+        const sentences = [
+            {
+                raw: "Although the technology has developed rapidly over the past decade, many researchers who have studied its long-term effects argue that the fundamental problem remains unsolved.",
+                core: "<span class='text-slate-400'>Although the technology has developed rapidly over the past decade,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>many researchers</b> <span class='text-slate-400'>who have studied its long-term effects</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>argue that the fundamental problem remains unsolved.</b>",
+                tip: "💡 剥洋葱技巧：划掉 Although 让步从句，再跳过 who 引导的定语从句，直接连起来读主干：许多研究者认为核心问题仍未解决！"
+            },
+            {
+                raw: "The assumption that artificial intelligence will completely replace human teachers in the near future ignores the complex emotional support that school education requires.",
+                core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>The assumption</b> <span class='text-slate-400'>that artificial intelligence will completely replace human teachers in the near future</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>ignores the complex emotional support</b> <span class='text-slate-400'>that school education requires.</span>",
+                tip: "💡 剥洋葱技巧：主语 The assumption 后面跟着一长串 that 同位语从句解释是什么假设，阅读时先跳过去找谓语动词 ignores（这种假设忽略了情感支持）。"
+            },
+            {
+                raw: "What makes this archaeological discovery particularly significant is not the age of the artifacts, but the fact that they were found in a region previously thought to be uninhabited.",
+                core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>What makes this discovery significant is</b> <span class='text-slate-400'>not the age of the artifacts,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>but the fact that they were found in an uninhabited region.</b>",
+                tip: "💡 剥洋葱技巧：紧盯 not... but...（不是...而是...）结构！雅思阅读90%的考点藏在 but 之后。"
+            },
+            {
+                raw: "While early experiments suggested a direct link between diet and cognitive decline, subsequent studies involving larger populations failed to replicate these initial findings.",
+                core: "<span class='text-slate-400'>While early experiments suggested a direct link...,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>subsequent studies</b> <span class='text-slate-400'>involving larger populations</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>failed to replicate these initial findings.</b>",
+                tip: "💡 剥洋葱技巧：句首的 While 等于 Although（尽管早期实验表明...），重心永远在后半句主干：后续研究未能复现最初的结论（即推翻了早期结论）！"
+            },
+            {
+                raw: "Critics of the proposed urban renewal project point out that the financial costs, which have already doubled since the initial estimate, far outweigh any potential environmental benefits.",
+                core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>Critics point out that the financial costs</b> <span class='text-slate-400'>, which have already doubled since the initial estimate,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>far outweigh any potential environmental benefits.</b>",
+                tip: "💡 剥洋葱技巧：两个逗号之间的 `, which...,` 是非限制性定语从句（插入语），阅读时直接当它不存在，主谓宾瞬间清晰：财务成本远远超过了潜在的环境收益。"
+            },
+            {
+                raw: "Rarely do historians agree on a single cause for the collapse of an empire, yet the prolonged drought of the ninth century is widely regarded as the decisive catalyst.",
+                core: "<span class='text-slate-400'>Rarely do historians agree on a single cause...,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>yet the prolonged drought is widely regarded as the decisive catalyst.</b>",
+                tip: "💡 剥洋葱技巧：前半句是 Rarely 否定词置于句首引起的倒装句，看到中间的 yet（然而），直接抓后半句核心观点：长期的干旱被广泛认为是决定性的催化剂。"
+            }
+        ];
+        let curSen = 0;
+
+        function switchTab(tab) {
+            ['dashboard', 'school', 'home', 'mistakes'].forEach(t => {
+                document.getElementById('sec-' + t).classList.add('hidden');
+                document.getElementById('tab-' + t).classList.remove('tab-active');
+                document.getElementById('tab-' + t).classList.add('text-slate-500');
+            });
+            document.getElementById('sec-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).classList.add('tab-active');
+            document.getElementById('tab-' + tab).classList.remove('text-slate-500');
+        }
+
+        function renderSynCard() {
+            document.getElementById('syn-q').innerText = synData[curSyn].q;
+            document.getElementById('syn-a').innerText = synData[curSyn].a;
+            document.getElementById('syn-cn').innerText = synData[curSyn].cn;
+            document.getElementById('syn-answer').classList.add('hidden');
+            document.getElementById('card-progress').innerText = (curSyn + 1) + " / " + synData.length;
+        }
+        function showSynAnswer() { document.getElementById('syn-answer').classList.remove('hidden'); }
+        function nextSynCard() { curSyn = (curSyn + 1) % synData.length; renderSynCard(); }
+        function prevSynCard() { curSyn = (curSyn - 1 + synData.length) % synData.length; renderSynCard(); }
+
+        function renderSentence() {
+            document.getElementById('sentence-box').innerHTML = sentences[curSen].raw;
+            document.getElementById('sentence-tip').classList.add('hidden');
+            document.getElementById('sen-progress').innerText = (curSen + 1) + " / " + sentences.length;
+        }
+        function highlightCore() {
+            document.getElementById('sentence-box').innerHTML = sentences[curSen].core;
+            const tip = document.getElementById('sentence-tip');
+            tip.innerText = sentences[curSen].tip;
+            tip.classList.remove('hidden');
+        }
+        function nextSentence() { curSen = (curSen + 1) % sentences.length; renderSentence(); }
+
+        let timerInterval;
+        function startTimer(minutes) {
+            clearInterval(timerInterval);
+            let seconds = minutes * 60;
+            timerInterval = setInterval(() => {
+                seconds--;
+                let m = Math.floor(seconds / 60).toString().padStart(2, '0');
+                let s = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer-display').innerText = `${m}:${s}`;
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("⏰ 时间到！请立即停笔对答案，并把没认出来的同义替换录入错题本！");
+                }
+            }, 1000);
+        }
+        function resetTimer() { clearInterval(timerInterval); document.getElementById('timer-display').innerText = "20:00"; }
+
+        function checkIn() {
+            const today = new Date().toLocaleDateString();
+            if (localStorage.getItem('ielts_last_checkin') === today) {
+                return alert("今天已经打过卡啦，继续保持！");
+            }
+            let days = parseInt(localStorage.getItem('ielts_streak') || '0') + 1;
+            localStorage.setItem('ielts_streak', days);
+            localStorage.setItem('ielts_last_checkin', today);
+            document.getElementById('streak-days').innerText = days + " 天";
+            alert("🎉 打卡成功！距离雅思 6.5/7.0 又近了一大步！");
+        }
+
+        function saveTasks() {
+            const states = [1, 2, 3, 4].map(i => document.getElementById('task-' + i).checked);
+            localStorage.setItem('ielts_tasks', JSON.stringify(states));
+        }
+        function loadTasks() {
+            const states = JSON.parse(localStorage.getItem('ielts_tasks') || '[false,false,false,false]');
+            [1, 2, 3, 4].forEach((i, idx) => { document.getElementById('task-' + i).checked = !!states[idx]; });
+        }
+        function resetDailyTasks() {
+            localStorage.setItem('ielts_tasks', '[false,false,false,false]');
+            loadTasks();
+        }
+
+        function addMistake() {
+            const source = document.getElementById('m-source').value.trim();
+            const reason = document.getElementById('m-reason').value;
+            const note = document.getElementById('m-note').value.trim();
+            if (!source || !note) return alert("请填写题源和积累的替换词！");
+            
+            const mistakes = JSON.parse(localStorage.getItem('ielts_mistakes') || '[]');
+            mistakes.unshift({ id: Date.now(), source, reason, note, date: new Date().toLocaleDateString() });
+            localStorage.setItem('ielts_mistakes', JSON.stringify(mistakes));
+            document.getElementById('m-source').value = '';
+            document.getElementById('m-note').value = '';
+            renderMistakes();
+        }
+
+        function deleteMistake(id) {
+            let mistakes = JSON.parse(localStorage.getItem('ielts_mistakes') || '[]');
+            mistakes = mistakes.filter(m => m.id !== id);
+            localStorage.setItem('ielts_mistakes', JSON.stringify(mistakes));
+            renderMistakes();
+        }
+
+        function renderMistakes() {
+            const mistakes = JSON.parse(localStorage.getItem('ielts_mistakes') || '[]');
+            document.getElementById('mistake-count').innerText = mistakes.length;
+            const container = document.getElementById('mistake-list');
+            if (mistakes.length === 0) {
+                container.innerHTML = `<div class="text-slate-400 text-xs py-4 text-center">暂无记录，快去做一篇阅读并记录发现的同义替换吧！</div>`;
+                return;
+            }
+            container.innerHTML = mistakes.map(m => `
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <span class="font-bold text-indigo-600">[${m.source}]</span> 
+                        <span class="text-slate-800 font-medium ml-1">${m.note}</span>
+                    </div>
+                    <div class="flex items-center justify-between sm:justify-end gap-3">
+                        <span class="bg-red-50 text-red-600 text-xs px-2.5 py-0.5 rounded-full border border-red-100">${m.reason}</span>
+                        <span class="text-xs text-slate-400">${m.date}</span>
+                        <button onclick="deleteMistake(${m.id})" class="text-xs text-slate-400 hover:text-red-500">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function exportData() {
+            const data = {
+                streak: localStorage.getItem('ielts_streak') || '0',
+                mistakes: JSON.parse(localStorage.getItem('ielts_mistakes') || '[]')
+            };
+            const code = btoa(encodeURIComponent(JSON.stringify(data)));
+            navigator.clipboard.writeText(code).then(() => {
+                alert("✅ 备份码已复制到剪贴板！可粘贴到微信发给另一台设备导入。");
+            }).catch(() => {
+                prompt("请手动全选复制以下备份码：", code);
+            });
+        }
+
+        function importData() {
+            const code = prompt("请粘贴从另一台设备导出的备份码：");
+            if (!code) return;
+            try {
+                const data = JSON.parse(decodeURIComponent(atob(code.trim())));
+                if (data.streak) localStorage.setItem('ielts_streak', data.streak);
+                if (data.mistakes) localStorage.setItem('ielts_mistakes', JSON.stringify(data.mistakes));
+                window.onload();
+                alert("🎉 数据同步成功！");
+            } catch (e) {
+                alert("❌ 备份码格式有误，请重新复制！");
+            }
+        }
+
+        window.onload = () => {
+            document.getElementById('streak-days').innerText = (localStorage.getItem('ielts_streak') || '0') + " 天";
+            loadTasks();
+            renderSynCard();
+            renderSentence();
+            renderMistakes();
+        };
+    </script>
+</body>
+</html>
