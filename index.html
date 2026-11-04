@@ -5,51 +5,235 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="雅思冲刺7.0">
-    <title>IELTS 6.5/7.0 专属冲刺系统</title>
+    <meta name="apple-mobile-web-app-title" content="雅思冲刺Pro">
+    <title>IELTS 6.5/7.0 动态无限题库系统 Pro 2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
         .tab-active { border-bottom: 3px solid #4F46E5; color: #4F46E5; font-weight: 700; }
+        .passage-scroll::-webkit-scrollbar { width: 6px; }
+        .passage-scroll::-webkit-scrollbar-thumb { background-color: #CBD5E1; border-radius: 3px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-16">
 
-    <!-- 顶部激励与状态栏 -->
-    <header class="bg-indigo-600 text-white shadow-md">
-        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+    <!-- 顶部状态与AI引擎栏 -->
+    <header class="bg-indigo-700 text-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div>
-                <h1 class="text-xl font-bold flex items-center gap-2">
-                    🚀 雅思 5.5 ➔ 7.0 专属提分驾驶舱
-                </h1>
-                <p class="text-indigo-200 text-xs mt-1">当前战力：口语6.0(优势) | 听写5.5(稳升) | 阅读4.5(核心突破口)</p>
-            </div>
-            <div class="flex items-center gap-3 bg-indigo-700 px-4 py-2 rounded-xl w-full sm:w-auto justify-between sm:justify-start">
-                <div>
-                    <div class="text-xs text-indigo-200">累计坚持</div>
-                    <div class="text-lg font-bold" id="streak-days">0 天</div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-xl font-bold">🚀 雅思 5.5 ➔ 7.0 动态无限题库系统</h1>
+                    <span class="bg-amber-400 text-slate-900 text-xs px-2 py-0.5 rounded font-bold">Pro 2.0</span>
                 </div>
-                <button onclick="checkIn()" class="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-white text-sm px-4 py-2 rounded-lg font-medium transition shadow">
-                    ✨ 今日打卡
+                <p class="text-indigo-200 text-xs mt-1">每日词句动态更新 · 周末真题在线模考与自动精析</p>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                <button onclick="openAiModal()" class="bg-indigo-800 hover:bg-indigo-900 border border-indigo-500 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1">
+                    ⚙️ AI 题库引擎设置 <span id="ai-status-dot" class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>
                 </button>
+                <div class="flex items-center gap-2 bg-indigo-800 px-3 py-1.5 rounded-lg">
+                    <div class="text-right">
+                        <div class="text-[10px] text-indigo-200">累计打卡</div>
+                        <div class="text-sm font-bold" id="streak-days">0 天</div>
+                    </div>
+                    <button onclick="checkIn()" class="bg-emerald-500 hover:bg-emerald-400 text-white text-xs px-3 py-1.5 rounded font-bold transition shadow">
+                        打卡
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- 导航栏 -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-        <div class="max-w-5xl mx-auto px-2 sm:px-4 flex space-x-2 sm:space-x-6 overflow-x-auto">
-            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="py-3.5 px-3 text-sm tab-active whitespace-nowrap">📊 每日任务与诊断</button>
-            <button onclick="switchTab('school')" id="tab-school" class="py-3.5 px-3 text-sm text-slate-500 hover:text-slate-800 whitespace-nowrap">🏫 在校碎片刷词 (15min)</button>
-            <button onclick="switchTab('home')" id="tab-home" class="py-3.5 px-3 text-sm text-slate-500 hover:text-slate-800 whitespace-nowrap">🏠 在家限时训练 (60min)</button>
-            <button onclick="switchTab('mistakes')" id="tab-mistakes" class="py-3.5 px-3 text-sm text-slate-500 hover:text-slate-800 whitespace-nowrap">📓 错题与数据同步</button>
+        <div class="max-w-6xl mx-auto px-2 sm:px-4 flex space-x-2 sm:space-x-6 overflow-x-auto">
+            <button onclick="switchTab('school')" id="tab-school" class="py-3.5 px-3 text-sm tab-active whitespace-nowrap">🏫 每日动态词句 (在校20min)</button>
+            <button onclick="switchTab('home')" id="tab-home" class="py-3.5 px-3 text-sm text-slate-500 hover:text-slate-800 whitespace-nowrap">🏠 周末真题模考舱 (在家60min)</button>
+            <button onclick="switchTab('mistakes')" id="tab-mistakes" class="py-3.5 px-3 text-sm text-slate-500 hover:text-slate-800 whitespace-nowrap">📓 错题本与同步 (<span id="nav-mistake-count">0</span>)</button>
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="py-3.5 px-3 text-sm text-slate-500 hover:text-slate-800 whitespace-nowrap">📊 提分诊断与打卡</button>
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto px-4 mt-6">
+    <main class="max-w-6xl mx-auto px-4 mt-6">
 
-        <!-- 1. 看板与每日清单 -->
-        <section id="sec-dashboard" class="space-y-6">
+        <!-- 1. 在校每日动态更新模式 -->
+        <section id="sec-school" class="space-y-6">
+            <!-- 批次控制台 -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-indigo-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <span class="text-sm font-bold text-slate-700 whitespace-nowrap">📅 选择训练批次：</span>
+                    <select id="day-selector" onchange="switchDayBatch(this.value)" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-slate-50 font-medium text-indigo-700 flex-1 sm:flex-initial">
+                        <!-- 动态渲染批次 -->
+                    </select>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button onclick="generateDailyByAI()" id="btn-gen-daily" class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs sm:text-sm px-4 py-2 rounded-lg font-bold shadow flex items-center justify-center gap-1.5 transition">
+                        ⚡ 召唤 AI 生成今日全新词句 (25词+6长难句)
+                    </button>
+                </div>
+            </div>
+
+            <!-- 同义替换闪卡 -->
+            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <span class="bg-red-100 text-red-700 text-xs px-2.5 py-1 rounded-full font-bold">阅读 4.5 ➔ 6.5 必背考点</span>
+                        <h2 class="text-base font-bold text-slate-800 mt-2">🔥 剑桥阅读高频“同义替换”特训</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-bold bg-indigo-50 px-3 py-1.5 rounded-full text-indigo-600" id="card-progress">1 / 25</span>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 sm:p-10 text-center my-4 min-h-[220px] flex flex-col justify-center">
+                    <div class="text-xs text-slate-400 mb-1">当你在【题干 Question】看到：</div>
+                    <div class="text-2xl sm:text-4xl font-extrabold text-indigo-600 my-2" id="syn-q">加载中...</div>
+                    
+                    <div id="syn-answer" class="hidden border-t border-slate-200 pt-4 mt-4">
+                        <div class="text-xs text-slate-400 mb-1">立即去【原文 Passage】寻找同义词：</div>
+                        <div class="text-lg sm:text-2xl font-bold text-emerald-600" id="syn-a"></div>
+                        <div class="text-xs sm:text-sm text-slate-600 mt-2 bg-white inline-block px-3 py-1.5 rounded border border-slate-200" id="syn-cn"></div>
+                        <div class="mt-3">
+                            <button onclick="collectCurrentSynToMistake()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1 rounded-md font-medium">⭐ 没记住？一键加入我的错题本</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-3 sm:gap-4">
+                    <button onclick="prevSynCard()" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2.5 rounded-lg text-sm font-medium">⬅ 上一个</button>
+                    <button onclick="showSynAnswer()" class="bg-amber-500 text-white hover:bg-amber-600 px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm">👀 看同义替换</button>
+                    <button onclick="nextSynCard()" class="bg-indigo-600 text-white hover:bg-indigo-700 px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm">下一个 ➔</button>
+                </div>
+            </div>
+
+            <!-- 长难句剥洋葱 -->
+            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">专治阅读看串行、看不懂</span>
+                        <h2 class="text-base font-bold text-slate-800 mt-2">🧅 剑桥长难句“3秒抓主干”剥洋葱训练</h2>
+                    </div>
+                    <span class="text-xs font-bold bg-indigo-50 px-3 py-1.5 rounded-full text-indigo-600" id="sen-progress">1 / 6</span>
+                </div>
+                
+                <div class="p-4 sm:p-6 bg-slate-50 rounded-xl border border-slate-200 text-sm sm:text-base leading-relaxed my-3" id="sentence-box"></div>
+                
+                <div id="sentence-tip" class="text-xs sm:text-sm text-emerald-900 bg-emerald-50 border border-emerald-200 p-3.5 rounded-lg my-3 hidden leading-relaxed"></div>
+
+                <div class="mt-4 flex flex-wrap justify-between items-center gap-3">
+                    <div class="flex gap-2">
+                        <button onclick="highlightCore()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-lg text-xs sm:text-sm font-bold hover:bg-emerald-700 shadow-sm">🎯 一键高亮主谓宾主干</button>
+                        <button onclick="prevSentence()" class="bg-slate-100 text-slate-600 px-3 py-2.5 rounded-lg text-xs sm:text-sm font-medium hover:bg-slate-200">⬅ 上一句</button>
+                        <button onclick="nextSentence()" class="bg-indigo-600 text-white px-4 py-2.5 rounded-lg text-xs sm:text-sm font-bold hover:bg-indigo-700">下一句 ➔</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. 周末在家真题模考舱 -->
+        <section id="sec-home" class="hidden space-y-6">
+            <!-- 顶部试卷选择与计时器栏 -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col lg:flex-row justify-between items-center gap-4">
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <span class="text-sm font-bold text-slate-700">📄 选择真题试卷：</span>
+                    <select id="test-selector" onchange="loadReadingTest(this.value)" class="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-slate-50 font-bold text-indigo-700 flex-1 sm:flex-initial">
+                        <!-- 动态渲染试卷列表 -->
+                    </select>
+                    <button onclick="generateReadingTestByAI()" id="btn-gen-test" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs px-3.5 py-2 rounded-lg font-bold shadow flex items-center gap-1">
+                        ⚡ AI 生成全新剑桥同源真题卷
+                    </button>
+                </div>
+
+                <!-- 嵌入式20分钟计时器 -->
+                <div class="flex items-center gap-3 bg-slate-100 px-4 py-2 rounded-xl w-full lg:w-auto justify-between lg:justify-end">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-500">⏱️ 限时配速:</span>
+                        <span class="text-2xl font-mono font-extrabold text-indigo-600" id="timer-display">20:00</span>
+                    </div>
+                    <div class="flex gap-1.5">
+                        <button onclick="startTimer(20)" class="bg-indigo-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-indigo-700">开始20分钟</button>
+                        <button onclick="resetTimer()" class="bg-slate-300 text-slate-700 px-2.5 py-1.5 rounded text-xs font-medium hover:bg-slate-400">重置</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 左右分栏真题阅读器（iPad/电脑双栏，手机上下栏） -->
+            <div class="grid lg:grid-cols-12 gap-6 items-start">
+                <!-- 左侧：阅读原文 Passage -->
+                <div class="lg:col-span-7 bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200 lg:sticky lg:top-16 max-h-[80vh] overflow-y-auto passage-scroll">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
+                        <div>
+                            <span class="bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded font-bold" id="passage-tag">Cambridge Academic Reading</span>
+                            <h2 class="text-lg font-extrabold text-slate-800 mt-1" id="passage-title">加载中...</h2>
+                        </div>
+                    </div>
+                    <div id="passage-content" class="space-y-4 text-sm sm:text-base text-slate-700 leading-relaxed select-text">
+                        <!-- 原文段落 -->
+                    </div>
+                </div>
+
+                <!-- 右侧：题目作答与智能解析区 -->
+                <div class="lg:col-span-5 bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200 space-y-5">
+                    <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">✏️ 随堂真题检测</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">先定位关键词，切忌全文逐字翻译！</p>
+                        </div>
+                        <div id="test-score-badge" class="hidden bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1.5 rounded-lg"></div>
+                    </div>
+
+                    <!-- 题目列表 -->
+                    <div id="questions-container" class="space-y-6"></div>
+
+                    <!-- 交卷与解析按钮 -->
+                    <div class="pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
+                        <button onclick="submitReadingTest()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-sm shadow transition">
+                            ✅ 交卷判分 & 查看同义替换精析
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 错题本与跨设备同步 -->
+        <section id="sec-mistakes" class="hidden space-y-6">
+            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-base font-bold text-slate-800 mb-1">🔍 手动/自动录入阅读与听力错题</h2>
+                <p class="text-xs text-slate-500 mb-4">在“真题模考舱”做错的题可一键加入此处，也可以把平时纸质剑桥真题上的同义替换记在这里。</p>
+                
+                <div class="grid sm:grid-cols-3 gap-3 mb-4">
+                    <input type="text" id="m-source" placeholder="题源 (如: 剑17 T2 P1)" class="border border-slate-300 rounded-lg px-3 py-2.5 text-sm">
+                    <select id="m-reason" class="border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white">
+                        <option value="同义替换没认出来">❌ 同义替换没认出来</option>
+                        <option value="定位超时/找错段">⏱️ 定位超时/找错段</option>
+                        <option value="长难句理解反了">🤯 长难句逻辑看反</option>
+                        <option value="听力拼写/单复数错误">🎧 听力拼写/单复数错误</option>
+                        <option value="TFNG过度推理">⚖️ TFNG 过度推理 (FALSE与NG混淆)</option>
+                    </select>
+                    <input type="text" id="m-note" placeholder="核心收获 (如: modify = alter 改变)" class="border border-slate-300 rounded-lg px-3 py-2.5 text-sm">
+                </div>
+                <button onclick="addMistake()" class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-indigo-700 shadow-sm w-full sm:w-auto">+ 存入专属错题本</button>
+            </div>
+
+            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="text-sm font-bold text-slate-800 mb-4">📊 累计错题与同义替换库 (<span id="mistake-count">0</span>)</h3>
+                <div id="mistake-list" class="space-y-3 text-sm"></div>
+            </div>
+
+            <!-- 跨设备备份 -->
+            <div class="bg-slate-100 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div class="text-xs text-slate-600">
+                    💡 <b>在校与在家数据同步：</b>点击导出备份码发到微信，在另一台设备上粘贴导入即可同步所有AI生成的题库与错题。
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="exportData()" class="bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded text-xs font-medium hover:bg-slate-50">📤 导出备份码</button>
+                    <button onclick="importData()" class="bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded text-xs font-medium hover:bg-slate-50">📥 粘贴导入</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 成绩看板与每日任务 -->
+        <section id="sec-dashboard" class="hidden space-y-6">
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <div class="bg-white p-4 rounded-xl shadow-sm border-2 border-red-200 bg-red-50/20">
                     <div class="text-xs text-red-600 font-bold">🎯 头号攻坚：阅读</div>
@@ -57,7 +241,7 @@
                         <span class="text-2xl font-extrabold text-slate-800">4.5</span>
                         <span class="text-sm text-emerald-600 font-bold">➔ 6.5+</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">每篇13题需做对9题。抓紧“同义替换”与“20分钟配速”。</p>
+                    <p class="text-xs text-slate-500 mt-2">每天25组同义替换+6个长难句，周末真题限时模考。</p>
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-amber-200">
                     <div class="text-xs text-amber-600 font-bold">🎧 重点提分：听力</div>
@@ -73,7 +257,7 @@
                         <span class="text-2xl font-extrabold text-slate-800">5.5</span>
                         <span class="text-sm text-emerald-600 font-bold">➔ 6.0+</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">底子很好！重点强化大作文主旨段因果链条展开。</p>
+                    <p class="text-xs text-slate-500 mt-2">强化大作文主旨段因果链条展开，减少跳跃逻辑。</p>
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-emerald-200 bg-emerald-50/20">
                     <div class="text-xs text-emerald-600 font-bold">🌟 绝对优势：口语</div>
@@ -81,242 +265,702 @@
                         <span class="text-2xl font-extrabold text-slate-800">6.0</span>
                         <span class="text-sm text-emerald-600 font-bold">➔ 6.5</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-2">语感极佳！保持自然流利度，补充 Part 3 辩证词伙。</p>
-                </div>
-            </div>
-
-            <!-- 每日微习惯 -->
-            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-base font-bold text-slate-800">📅 今日通关任务（完成后打勾）</h2>
-                    <button onclick="resetDailyTasks()" class="text-xs text-indigo-600 hover:underline">重置今日勾选</button>
-                </div>
-                <div class="space-y-3" id="task-list">
-                    <label class="flex items-start sm:items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
-                        <input type="checkbox" id="task-1" class="mt-1 sm:mt-0 w-5 h-5 text-indigo-600 rounded" onchange="saveTasks()">
-                        <span class="text-sm"><b>【在校碎片 10min】</b>在“在校模式”下刷完 15 组剑桥阅读高频同义替换词</span>
-                    </label>
-                    <label class="flex items-start sm:items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
-                        <input type="checkbox" id="task-2" class="mt-1 sm:mt-0 w-5 h-5 text-indigo-600 rounded" onchange="saveTasks()">
-                        <span class="text-sm"><b>【在校碎片 10min】</b>完成 3 句真题长难句“3秒抓主干”剥洋葱训练</span>
-                    </label>
-                    <label class="flex items-start sm:items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
-                        <input type="checkbox" id="task-3" class="mt-1 sm:mt-0 w-5 h-5 text-indigo-600 rounded" onchange="saveTasks()">
-                        <span class="text-sm"><b>【在家整块 25min】</b>开启20分钟倒计时精做 1 篇剑桥阅读，并将没看出的替换词记入错题本</span>
-                    </label>
-                    <label class="flex items-start sm:items-center gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
-                        <input type="checkbox" id="task-4" class="mt-1 sm:mt-0 w-5 h-5 text-indigo-600 rounded" onchange="saveTasks()">
-                        <span class="text-sm"><b>【在家睡前 15min】</b>听力 Section 1/3 核心词听写，或口语当季题库自言自语练 1 道题</span>
-                    </label>
-                </div>
-            </div>
-        </section>
-
-        <!-- 2. 在校碎片模式 -->
-        <section id="sec-school" class="hidden space-y-6">
-            <!-- 同义替换闪卡 -->
-            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-3">
-                    <div>
-                        <span class="bg-red-100 text-red-700 text-xs px-2.5 py-1 rounded-full font-bold">阅读 4.5 ➔ 6.5 核心密码</span>
-                        <h2 class="text-base font-bold text-slate-800 mt-2">🔥 剑桥真题“同义替换”条件反射训练</h2>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-600" id="card-progress">1 / 30</span>
-                    </div>
-                </div>
-                
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 sm:p-10 text-center my-4 min-h-[210px] flex flex-col justify-center">
-                    <div class="text-xs text-slate-400 mb-1">当你在【题干 Question】看到：</div>
-                    <div class="text-2xl sm:text-3xl font-extrabold text-indigo-600 my-2" id="syn-q">resemble</div>
-                    
-                    <div id="syn-answer" class="hidden border-t border-slate-200 pt-4 mt-4 animate-fade-in">
-                        <div class="text-xs text-slate-400 mb-1">立即去【原文 Passage】寻找：</div>
-                        <div class="text-lg sm:text-xl font-bold text-emerald-600" id="syn-a">look like / be similar to / bear a resemblance to</div>
-                        <div class="text-xs sm:text-sm text-slate-600 mt-2 bg-white inline-block px-3 py-1 rounded border border-slate-100" id="syn-cn">含义：相似，像...一样（剑桥阅读极高频考点）</div>
-                    </div>
-                </div>
-
-                <div class="flex justify-center gap-3 sm:gap-4">
-                    <button onclick="prevSynCard()" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2.5 rounded-lg text-sm font-medium">⬅ 上一个</button>
-                    <button onclick="showSynAnswer()" class="bg-amber-500 text-white hover:bg-amber-600 px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm">👀 看答案</button>
-                    <button onclick="nextSynCard()" class="bg-indigo-600 text-white hover:bg-indigo-700 px-6 py-2.5 rounded-lg text-sm font-bold shadow-sm">下一个 ➔</button>
-                </div>
-            </div>
-
-            <!-- 长难句剥洋葱 -->
-            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-3">
-                    <div>
-                        <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full font-bold">专治阅读超时、回读</span>
-                        <h2 class="text-base font-bold text-slate-800 mt-2">🧅 剑桥长难句“一秒过滤修饰看主干”</h2>
-                    </div>
-                    <span class="text-xs font-semibold bg-slate-100 px-3 py-1 rounded-full text-slate-600" id="sen-progress">1 / 6</span>
-                </div>
-                
-                <div class="p-4 sm:p-5 bg-slate-50 rounded-xl border border-slate-200 text-sm sm:text-base leading-relaxed my-3" id="sentence-box">
-                </div>
-                
-                <div id="sentence-tip" class="text-xs sm:text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 p-3 rounded-lg my-3 hidden"></div>
-
-                <div class="mt-4 flex flex-wrap gap-3">
-                    <button onclick="highlightCore()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg text-xs sm:text-sm font-bold hover:bg-emerald-700 shadow-sm">🎯 一键高亮句子主干</button>
-                    <button onclick="nextSentence()" class="bg-slate-200 text-slate-700 px-5 py-2.5 rounded-lg text-xs sm:text-sm font-medium hover:bg-slate-300">换一句真题 ➔</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. 在家整块模式 -->
-        <section id="sec-home" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-center">
-                <span class="bg-indigo-100 text-indigo-700 text-xs px-3 py-1 rounded-full font-bold">阅读提速训练器</span>
-                <h2 class="text-lg font-bold text-slate-800 mt-2">⏱️ 单篇阅读 20 分钟标准配速器</h2>
-                <p class="text-xs text-slate-500 mt-1 max-w-xl mx-auto">阅读4.5分最大的敌人是“从头到尾逐字翻译”。请打开剑桥真题，点击下方开始：严格执行【前2分钟看标题与首段】➔【15分钟平行阅读找定位词】➔【最后3分钟蒙猜收尾】。</p>
-                
-                <div class="text-6xl font-mono font-extrabold text-indigo-600 my-6 tracking-wider" id="timer-display">20:00</div>
-                
-                <div class="flex flex-wrap justify-center gap-3">
-                    <button onclick="startTimer(20)" class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-indigo-700 shadow">▶ 单篇限时 (20分钟)</button>
-                    <button onclick="startTimer(60)" class="bg-slate-800 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-slate-900 shadow">▶ 套题模考 (60分钟)</button>
-                    <button onclick="resetTimer()" class="bg-slate-200 text-slate-700 px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-300">重置</button>
-                </div>
-            </div>
-
-            <!-- 平行阅读法口诀与优势科目提醒 -->
-            <div class="grid sm:grid-cols-2 gap-4">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-sm text-red-600">🧭 阅读 4.5 ➔ 6.5 救命口诀（做题前必看）</h3>
-                    <ol class="text-xs text-slate-600 space-y-2 mt-3 list-decimal pl-4">
-                        <li><b>绝不先读全文！</b>直接看题目，划出人名、地名、年代、特殊名词作为定位词。</li>
-                        <li><b>顺序原则：</b>判断题(TFNG)、填空题、单选题全部是按原文顺序出题的！第2题答案一定在第1题和第3题中间。</li>
-                        <li><b>超过90秒找不到果断跳过：</b>阅读拿6.5分允许错10-12道题！放弃最难的3道题，保证简单题全对就是6.5分。</li>
-                    </ol>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-sm text-indigo-600">🎙️ 口语(6.0)与写作(5.5)保分升级秘籍</h3>
-                    <ul class="text-xs text-slate-600 space-y-2 mt-3 list-disc pl-4">
-                        <li><b>口语：</b>你的流利度已经是6分水平！Part 3 遇到没想过的问题，用 <i>"That's a tricky question, I suppose from an individual perspective..."</i> 争取思考时间。</li>
-                        <li><b>写作：</b>5.5到6.5的关键不是炫技长句，而是<b>不要跳跃逻辑</b>。把“因为A所以C”扩写成“因为A ➔ 导致了B状态 ➔ 进而引发了C结果”。</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- 4. 错题本与跨设备同步 -->
-        <section id="sec-mistakes" class="hidden space-y-6">
-            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
-                <h2 class="text-base font-bold text-slate-800 mb-1">🔍 录入阅读/听力错题与替换词</h2>
-                <p class="text-xs text-slate-500 mb-4">每做完一篇阅读，必须把没看出来的 3-5 组同义替换记录在这里，考前一周只背这里！</p>
-                
-                <div class="grid sm:grid-cols-3 gap-3 mb-4">
-                    <input type="text" id="m-source" placeholder="题源 (如: 剑17 T2 P1)" class="border border-slate-300 rounded-lg px-3 py-2.5 text-sm">
-                    <select id="m-reason" class="border border-slate-300 rounded-lg px-3 py-2.5 text-sm bg-white">
-                        <option value="同义替换没认出来">❌ 同义替换没认出来</option>
-                        <option value="定位超时/找错段">⏱️ 定位超时/找错段</option>
-                        <option value="长难句理解反了">🤯 长难句逻辑看反</option>
-                        <option value="听力拼写/单复数错误">🎧 听力拼写/单复数错误</option>
-                        <option value="TFNG过度推理">⚖️ TFNG 过度推理</option>
-                    </select>
-                    <input type="text" id="m-note" placeholder="收获 (如: modify = change)" class="border border-slate-300 rounded-lg px-3 py-2.5 text-sm">
-                </div>
-                <button onclick="addMistake()" class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-indigo-700 shadow-sm w-full sm:w-auto">+ 存入专属错题本</button>
-            </div>
-
-            <!-- 错题列表 -->
-            <div class="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-bold text-slate-800">📊 我的错题与同义替换积累库 (<span id="mistake-count">0</span>)</h3>
-                </div>
-                <div id="mistake-list" class="space-y-3 text-sm"></div>
-            </div>
-
-            <!-- 跨设备数据备份 -->
-            <div class="bg-slate-100 p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
-                <div class="text-xs text-slate-600">
-                    💡 <b>在校/在家换设备同步：</b>可一键复制学习数据代码，发到微信并在另一台设备上导入。
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="exportData()" class="bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded text-xs font-medium hover:bg-slate-50">📤 导出备份码</button>
-                    <button onclick="importData()" class="bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded text-xs font-medium hover:bg-slate-50">📥 粘贴导入</button>
+                    <p class="text-xs text-slate-500 mt-2">保持自然流利度，补充 Part 3 辩证讨论词伙。</p>
                 </div>
             </div>
         </section>
 
     </main>
 
-    <script>
-        // 30组剑桥雅思阅读最核心高频同义替换词库
-        const synData = [
-            { q: "resemble", a: "look like / be similar to / bear a resemblance to", cn: "相似，像...一样（匹配题与判断题极高频）" },
-            { q: "accelerate", a: "speed up / increase the rate of", cn: "加速，促进" },
-            { q: "viable", a: "practical / feasible / workable / realistic", cn: "可行的，能实施的" },
-            { q: "adversely affect", a: "have a negative impact on / impair / damage", cn: "产生负面影响，损害" },
-            { q: "chronic", a: "long-term / persistent / lasting", cn: "长期的，慢性的" },
-            { q: "skeptical", a: "doubtful / question the validity of / unconvinced", cn: "持怀疑态度的（常考于学者观点题）" },
-            { q: "prior to", a: "before / previous to / precede", cn: "在...之前（时间顺序定位核心词）" },
-            { q: "trigger", a: "cause / lead to / give rise to / spark", cn: "引发，触发（因果关系必考）" },
-            { q: "obsolete", a: "out of date / no longer in use / outdated", cn: "过时的，淘汰的" },
-            { q: "abundance", a: "plenty of / a large amount of / ample", cn: "大量，丰富" },
-            { q: "scarce", a: "rare / limited / in short supply / insufficient", cn: "稀缺的，不足的" },
-            { q: "fluctuate", a: "vary / change continually / be unstable", cn: "波动，起伏不定" },
-            { q: "inevitable", a: "unavoidable / certain to happen", cn: "不可避免的，必然的" },
-            { q: "preserve", a: "protect / conserve / maintain / keep intact", cn: "保护，保存" },
-            { q: "eradicate", a: "eliminate / wipe out / get rid of completely", cn: "根除，消灭" },
-            { q: "detect", a: "spot / identify / notice / perceive", cn: "察觉，探测到，发现" },
-            { q: "artificial", a: "man-made / synthetic / manufactured", cn: "人造的，合成的" },
-            { q: "spontaneous", a: "unplanned / impulsive / automatic", cn: "自发的，无意识的" },
-            { q: "hinder", a: "impede / obstruct / hold back / hamper", cn: "阻碍，妨碍" },
-            { q: "boost", a: "enhance / promote / foster / stimulate", cn: "促进，提升，推动" },
-            { q: "initial", a: "first / premier / at the beginning / early", cn: "最初的，开始的" },
-            { q: "solely", a: "only / exclusively / merely / alone", cn: "唯一地，仅仅（判断题绝对词考点！）" },
-            { q: "alter", a: "change / modify / shift / adjust", cn: "改变，调整" },
-            { q: "crucial", a: "vital / essential / indispensable / key", cn: "至关重要的" },
-            { q: "conventional", a: "traditional / standard / orthodox", cn: "传统的，常规的" },
-            { q: "diverse", a: "various / a wide range of / distinct", cn: "多样的，不同的" },
-            { q: "fragile", a: "vulnerable / delicate / easily broken", cn: "脆弱的，易受伤害的" },
-            { q: "compensate for", a: "make up for / offset / balance", cn: "弥补，补偿" },
-            { q: "underestimate", a: "underrate / overlook the importance of", cn: "低估，轻视" },
-            { q: "unprecedented", a: "never seen before / novel / unique in history", cn: "史无前例的，空前的" }
-        ];
-        let curSyn = 0;
+    <!-- AI 引擎配置弹窗 -->
+    <div id="ai-modal" class="fixed inset-0 bg-slate-900/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-base text-slate-800">⚡ AI 动态无限题库引擎配置</h3>
+                <button onclick="closeAiModal()" class="text-slate-400 hover:text-slate-600 text-lg">✕</button>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                配置一次后自动保存在当前设备浏览器中。支持 OpenRouter、DeepSeek、七牛云或任何兼容 OpenAI 格式的接口。配置后即可每天无限生成全新的雅思同义替换词、长难句和剑桥阅读真题卷！
+            </p>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-1">API Base URL (接口地址)</label>
+                    <input type="text" id="ai-url" value="https://openrouter.ai/api/v1" placeholder="如 https://openrouter.ai/api/v1 或 https://api.deepseek.com/v1" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-1">API Key (密钥)</label>
+                    <input type="password" id="ai-key" placeholder="输入 sk-... 开头的 API Key" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-700 block mb-1">模型名称 (Model)</label>
+                    <input type="text" id="ai-model" value="deepseek/deepseek-chat" placeholder="如 deepseek/deepseek-chat 或 openai/gpt-4o-mini" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-3 border-t">
+                <button onclick="closeAiModal()" class="px-4 py-2 rounded-lg text-xs font-medium bg-slate-100 text-slate-600">取消</button>
+                <button onclick="saveAiConfig()" class="px-5 py-2 rounded-lg text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700">保存并启用</button>
+            </div>
+        </div>
+    </div>
 
-        // 剑桥真题长难句库
-        const sentences = [
-            {
-                raw: "Although the technology has developed rapidly over the past decade, many researchers who have studied its long-term effects argue that the fundamental problem remains unsolved.",
-                core: "<span class='text-slate-400'>Although the technology has developed rapidly over the past decade,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>many researchers</b> <span class='text-slate-400'>who have studied its long-term effects</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>argue that the fundamental problem remains unsolved.</b>",
-                tip: "💡 剥洋葱技巧：划掉 Although 让步从句，再跳过 who 引导的定语从句，直接连起来读主干：许多研究者认为核心问题仍未解决！"
+    <script>
+        // ================= 一、内置多日离线题库（保底3天×25词+18长难句，且支持AI无限追加 Day 4, Day 5...） =================
+        const defaultDailyBatches = {
+            "Day 1 · 剑桥核心高频同义替换 (第1批)": {
+                syns: [
+                    { q: "resemble", a: "look like / be similar to / bear a resemblance to", cn: "相似，像...一样（匹配与判断题极高频）" },
+                    { q: "accelerate", a: "speed up / increase the rate of", cn: "加速，促进" },
+                    { q: "viable", a: "practical / feasible / workable / realistic", cn: "可行的，能实施的" },
+                    { q: "adversely affect", a: "have a negative impact on / impair / damage", cn: "产生负面影响，损害" },
+                    { q: "chronic", a: "long-term / persistent / lasting", cn: "长期的，慢性的" },
+                    { q: "skeptical", a: "doubtful / question the validity of / unconvinced", cn: "持怀疑态度的（学者观点题必考）" },
+                    { q: "prior to", a: "before / previous to / precede", cn: "在...之前（时间顺序定位核心词）" },
+                    { q: "trigger", a: "cause / lead to / give rise to / spark", cn: "引发，触发（因果关系必考）" },
+                    { q: "obsolete", a: "out of date / no longer in use / outdated", cn: "过时的，淘汰的" },
+                    { q: "abundance", a: "plenty of / a large amount of / ample", cn: "大量，丰富" },
+                    { q: "scarce", a: "rare / limited / in short supply / insufficient", cn: "稀缺的，不足的" },
+                    { q: "fluctuate", a: "vary / change continually / be unstable", cn: "波动，起伏不定" },
+                    { q: "inevitable", a: "unavoidable / certain to happen", cn: "不可避免的，必然的" },
+                    { q: "preserve", a: "protect / conserve / maintain / keep intact", cn: "保护，保存" },
+                    { q: "eradicate", a: "eliminate / wipe out / get rid of completely", cn: "根除，消灭" },
+                    { q: "detect", a: "spot / identify / notice / perceive", cn: "察觉，探测到，发现" },
+                    { q: "artificial", a: "man-made / synthetic / manufactured", cn: "人造的，合成的" },
+                    { q: "spontaneous", a: "unplanned / impulsive / automatic", cn: "自发的，无意识的" },
+                    { q: "hinder", a: "impede / obstruct / hold back / hamper", cn: "阻碍，妨碍" },
+                    { q: "boost", a: "enhance / promote / foster / stimulate", cn: "促进，提升，推动" },
+                    { q: "initial", a: "first / premier / at the beginning / early", cn: "最初的，开始的" },
+                    { q: "solely", a: "only / exclusively / merely / alone", cn: "唯一地，仅仅（判断题绝对词考点！）" },
+                    { q: "alter", a: "change / modify / shift / adjust", cn: "改变，调整" },
+                    { q: "crucial", a: "vital / essential / indispensable / key", cn: "至关重要的" },
+                    { q: "conventional", a: "traditional / standard / orthodox", cn: "传统的，常规的" }
+                ],
+                sentences: [
+                    {
+                        raw: "Although the technology has developed rapidly over the past decade, many researchers who have studied its long-term effects argue that the fundamental problem remains unsolved.",
+                        core: "<span class='text-slate-400'>Although the technology has developed rapidly over the past decade,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>many researchers</b> <span class='text-slate-400'>who have studied its long-term effects</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>argue that the fundamental problem remains unsolved.</b>",
+                        tip: "💡 剥洋葱技巧：划掉 Although 让步从句，再跳过 who 引导的定语从句，直接连起来读主干：许多研究者认为核心问题仍未解决！"
+                    },
+                    {
+                        raw: "The assumption that artificial intelligence will completely replace human teachers in the near future ignores the complex emotional support that school education requires.",
+                        core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>The assumption</b> <span class='text-slate-400'>that artificial intelligence will completely replace human teachers in the near future</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>ignores the complex emotional support</b> <span class='text-slate-400'>that school education requires.</span>",
+                        tip: "💡 剥洋葱技巧：主语 The assumption 后面跟着一长串 that 同位语从句解释是什么假设，阅读时先跳过去找谓语动词 ignores（这种假设忽略了情感支持）。"
+                    },
+                    {
+                        raw: "What makes this archaeological discovery particularly significant is not the age of the artifacts, but the fact that they were found in a region previously thought to be uninhabited.",
+                        core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>What makes this discovery significant is</b> <span class='text-slate-400'>not the age of the artifacts,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>but the fact that they were found in an uninhabited region.</b>",
+                        tip: "💡 剥洋葱技巧：紧盯 not... but...（不是...而是...）结构！雅思阅读90%的考点藏在 but 之后。"
+                    },
+                    {
+                        raw: "While early experiments suggested a direct link between diet and cognitive decline, subsequent studies involving larger populations failed to replicate these initial findings.",
+                        core: "<span class='text-slate-400'>While early experiments suggested a direct link...,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>subsequent studies</b> <span class='text-slate-400'>involving larger populations</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>failed to replicate these initial findings.</b>",
+                        tip: "💡 剥洋葱技巧：句首的 While 等于 Although（尽管早期实验表明...），重心永远在后半句主干：后续研究未能复现最初的结论（即推翻了早期结论）！"
+                    },
+                    {
+                        raw: "Critics of the proposed urban renewal project point out that the financial costs, which have already doubled since the initial estimate, far outweigh any potential environmental benefits.",
+                        core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>Critics point out that the financial costs</b> <span class='text-slate-400'>, which have already doubled since the initial estimate,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>far outweigh any potential environmental benefits.</b>",
+                        tip: "💡 剥洋葱技巧：两个逗号之间的 `, which...,` 是非限制性定语从句（插入语），阅读时直接当它不存在，主谓宾瞬间清晰：财务成本远远超过了潜在的环境收益。"
+                    },
+                    {
+                        raw: "Rarely do historians agree on a single cause for the collapse of an empire, yet the prolonged drought of the ninth century is widely regarded as the decisive catalyst.",
+                        core: "<span class='text-slate-400'>Rarely do historians agree on a single cause...,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>yet the prolonged drought is widely regarded as the decisive catalyst.</b>",
+                        tip: "💡 剥洋葱技巧：前半句是 Rarely 否定词置于句首引起的倒装句，看到中间的 yet（然而），直接抓后半句核心观点：长期的干旱被广泛认为是决定性的催化剂。"
+                    }
+                ]
             },
-            {
-                raw: "The assumption that artificial intelligence will completely replace human teachers in the near future ignores the complex emotional support that school education requires.",
-                core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>The assumption</b> <span class='text-slate-400'>that artificial intelligence will completely replace human teachers in the near future</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>ignores the complex emotional support</b> <span class='text-slate-400'>that school education requires.</span>",
-                tip: "💡 剥洋葱技巧：主语 The assumption 后面跟着一长串 that 同位语从句解释是什么假设，阅读时先跳过去找谓语动词 ignores（这种假设忽略了情感支持）。"
+            "Day 2 · 剑桥核心高频同义替换 (第2批)": {
+                syns: [
+                    { q: "diverse", a: "various / a wide range of / distinct", cn: "多样的，不同的" },
+                    { q: "fragile", a: "vulnerable / delicate / easily broken", cn: "脆弱的，易受伤害的" },
+                    { q: "compensate for", a: "make up for / offset / balance", cn: "弥补，补偿" },
+                    { q: "underestimate", a: "underrate / overlook the importance of", cn: "低估，轻视" },
+                    { q: "unprecedented", a: "never seen before / novel / unique in history", cn: "史无前例的，空前的" },
+                    { q: "deteriorate", a: "worsen / decline / get worse / degrade", cn: "恶化，衰退" },
+                    { q: "flourish", a: "thrive / prosper / boom / grow well", cn: "繁荣，茁壮成长" },
+                    { q: "reluctant", a: "unwilling / hesitant / slow to act", cn: "不情愿的，勉强的" },
+                    { q: "mandatory", a: "compulsory / obligatory / required by law", cn: "强制的，必须做的" },
+                    { q: "optional", a: "voluntary / by choice / not compulsory", cn: "可选择的，非强制的" },
+                    { q: "allocate", a: "distribute / assign / allot", cn: "分配，拨给（经费或资源）" },
+                    { q: "perceive", a: "view / regard / see / consider", cn: "认为，看待，感知" },
+                    { q: "distinguish", a: "differentiate / tell apart / recognize the difference", cn: "区分，辨别" },
+                    { q: "trait", a: "feature / characteristic / attribute / property", cn: "特征，特点（生物与心理篇极高频）" },
+                    { q: "inhibit", a: "restrain / prevent / slow down / suppress", cn: "抑制，阻止" },
+                    { q: "extract", a: "remove / take out / draw out", cn: "提取，提炼" },
+                    { q: "contaminated", a: "polluted / impure / tainted", cn: "受污染的" },
+                    { q: "adjacent to", a: "next to / near / bordering / close to", cn: "毗邻的，紧挨着的（地图与建筑题必考）" },
+                    { q: "simultaneously", a: "at the same time / concurrently", cn: "同时地" },
+                    { q: "controversial", a: "disputed / debatable / causing public disagreement", cn: "有争议的" },
+                    { q: "consensus", a: "general agreement / shared view", cn: "共识，一致意见" },
+                    { q: "feasible", a: "viable / achievable / practicable", cn: "可行的" },
+                    { q: "detrimental", a: "harmful / damaging / unfavourable", cn: "有害的，不利的" },
+                    { q: "predominantly", a: "mainly / mostly / largely / chiefly", cn: "主要地，占主导地位地" },
+                    { q: "replicate", a: "reproduce / copy / duplicate", cn: "复制，复现（科学实验题高频）" }
+                ],
+                sentences: [
+                    {
+                        raw: "Not until the late nineteenth century did scientists begin to comprehend the intricate mechanisms by which infectious diseases are transmitted across populations.",
+                        core: "<span class='text-slate-400'>Not until the late nineteenth century</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>did scientists begin to comprehend the intricate mechanisms</b> <span class='text-slate-400'>by which infectious diseases are transmitted.</span>",
+                        tip: "💡 剥洋葱技巧：Not until... did... 是典型倒装结构，意思是“直到19世纪末，科学家才开始理解传染病传播的复杂机制”（潜台词：19世纪末之前不理解！常考判断题 FALSE/TRUE）。"
+                    },
+                    {
+                        raw: "The hypothesis that early human migration was driven primarily by sudden climatic shifts rather than population pressure has gained considerable support from recent genetic evidence.",
+                        core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>The hypothesis</b> <span class='text-slate-400'>that early human migration was driven by climatic shifts rather than population pressure</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>has gained considerable support from recent genetic evidence.</b>",
+                        tip: "💡 剥洋葱技巧：主语 The hypothesis 与谓语 has gained support 被中间长达15个词的同位语从句隔开，同时注意里面的 rather than（是气候变化，而不是人口压力）。"
+                    },
+                    {
+                        raw: "Regardless of how sophisticated automated translation software becomes, nuances embedded in cultural idioms will likely remain beyond the grasp of algorithms.",
+                        core: "<span class='text-slate-400'>Regardless of how sophisticated software becomes,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>nuances</b> <span class='text-slate-400'>embedded in cultural idioms</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>will likely remain beyond the grasp of algorithms.</b>",
+                        tip: "💡 剥洋葱技巧：Regardless of（无论...）引导让步状语，直接看主句：文化习语中的细微差别（nuances）仍将超出算法的理解范围（beyond the grasp）。"
+                    },
+                    {
+                        raw: "Had the ancient civilization invested more heavily in water conservation infrastructure, its agricultural output might have withstood the severe decades-long megadrought.",
+                        core: "<span class='text-slate-400'>Had the civilization invested more in water conservation,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>its agricultural output might have withstood the megadrought.</b>",
+                        tip: "💡 剥洋葱技巧：Had 置于句首代表虚拟语气（如果当初投入更多...，产量本可以扛住大旱）。注意虚拟语气意味着事实上**没有投入、也没有扛住**！"
+                    },
+                    {
+                        raw: "It is the interaction between genetic predisposition and environmental triggers, rather than either factor operating in isolation, that determines an individual's susceptibility to the condition.",
+                        core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>It is the interaction</b> <span class='text-slate-400'>between genetics and environment, rather than either factor in isolation,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>that determines susceptibility.</b>",
+                        tip: "💡 剥洋葱技巧：It is... that... 强调句型！被强调的核心是 the interaction（两者的相互作用，而不是单一因素孤立起作用）。"
+                    },
+                    {
+                        raw: "Far from simplifying administrative procedures as originally promised, the introduction of the digital platform has generated an unprecedented volume of bureaucratic paperwork.",
+                        core: "<span class='text-slate-400'>Far from simplifying procedures as promised,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>the introduction of the platform has generated an unprecedented volume of paperwork.</b>",
+                        tip: "💡 剥洋葱技巧：句首 Far from doing... 意思是“非但没有简化流程，反而...”，后面主句直接给出相反的结果：产生了史无前例的繁琐文书。"
+                    }
+                ]
             },
-            {
-                raw: "What makes this archaeological discovery particularly significant is not the age of the artifacts, but the fact that they were found in a region previously thought to be uninhabited.",
-                core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>What makes this discovery significant is</b> <span class='text-slate-400'>not the age of the artifacts,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>but the fact that they were found in an uninhabited region.</b>",
-                tip: "💡 剥洋葱技巧：紧盯 not... but...（不是...而是...）结构！雅思阅读90%的考点藏在 but 之后。"
-            },
-            {
-                raw: "While early experiments suggested a direct link between diet and cognitive decline, subsequent studies involving larger populations failed to replicate these initial findings.",
-                core: "<span class='text-slate-400'>While early experiments suggested a direct link...,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>subsequent studies</b> <span class='text-slate-400'>involving larger populations</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>failed to replicate these initial findings.</b>",
-                tip: "💡 剥洋葱技巧：句首的 While 等于 Although（尽管早期实验表明...），重心永远在后半句主干：后续研究未能复现最初的结论（即推翻了早期结论）！"
-            },
-            {
-                raw: "Critics of the proposed urban renewal project point out that the financial costs, which have already doubled since the initial estimate, far outweigh any potential environmental benefits.",
-                core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>Critics point out that the financial costs</b> <span class='text-slate-400'>, which have already doubled since the initial estimate,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>far outweigh any potential environmental benefits.</b>",
-                tip: "💡 剥洋葱技巧：两个逗号之间的 `, which...,` 是非限制性定语从句（插入语），阅读时直接当它不存在，主谓宾瞬间清晰：财务成本远远超过了潜在的环境收益。"
-            },
-            {
-                raw: "Rarely do historians agree on a single cause for the collapse of an empire, yet the prolonged drought of the ninth century is widely regarded as the decisive catalyst.",
-                core: "<span class='text-slate-400'>Rarely do historians agree on a single cause...,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>yet the prolonged drought is widely regarded as the decisive catalyst.</b>",
-                tip: "💡 剥洋葱技巧：前半句是 Rarely 否定词置于句首引起的倒装句，看到中间的 yet（然而），直接抓后半句核心观点：长期的干旱被广泛认为是决定性的催化剂。"
+            "Day 3 · 剑桥核心高频同义替换 (第3批)": {
+                syns: [
+                    { q: "intuitive", a: "instinctive / natural / untaught", cn: "直觉的，本能的" },
+                    { q: "obscure", a: "unclear / little known / vague / hidden", cn: "模糊的，鲜为人知的" },
+                    { q: "prominent", a: "leading / well-known / noticeable / eminent", cn: "著名的，显眼的，突出的" },
+                    { q: "subtle", a: "slight / delicate / hard to notice", cn: "微妙的，细微的" },
+                    { q: "superficial", a: "on the surface / shallow / not thorough", cn: "表面的，肤浅的" },
+                    { q: "scrutiny", a: "careful examination / close inspection", cn: "仔细审查，详细检查" },
+                    { q: "proliferate", a: "multiply / increase rapidly / mushroom", cn: "激增，迅速繁殖或扩散" },
+                    { q: "stagnant", a: "inactive / not growing / static", cn: "停滞不前的" },
+                    { q: "resilient", a: "able to recover quickly / adaptable / tough", cn: "有韧性的，能迅速恢复的" },
+                    { q: "equilibrium", a: "balance / stability", cn: "平衡，均衡状态" },
+                    { q: "catalyst", a: "stimulus / impetus / driving force", cn: "催化剂，刺激因素" },
+                    { q: "chronicler", a: "historian / writer who records events", cn: "编年史作者，记录者" },
+                    { q: "affluent", a: "wealthy / prosperous / well-off", cn: "富裕的" },
+                    { q: "impoverished", a: "poor / destitute / deprived", cn: "贫困的" },
+                    { q: "autonomous", a: "independent / self-governing", cn: "自治的，自主的" },
+                    { q: "homogenous", a: "uniform / all the same / identical", cn: "同质的，相同的" },
+                    { q: "ambiguous", a: "open to more than one interpretation / unclear", cn: "模棱两可的，含糊不清的" },
+                    { q: "constrain", a: "restrict / limit / confine", cn: "限制，约束" },
+                    { q: "foster", a: "encourage / promote / cultivate", cn: "培养，促进，助长" },
+                    { q: "disperse", a: "scatter / spread out / distribute", cn: "分散，散开，传播（种子等）" },
+                    { q: "accumulate", a: "gather / build up / amass / collect", cn: "积累，积聚" },
+                    { q: "deplete", a: "exhaust / use up / drain", cn: "耗尽，使枯竭（资源）" },
+                    { q: "endorse", a: "support / approve / back up", cn: "支持，赞同，背书" },
+                    { q: "refute", a: "disprove / prove to be false / contradict", cn: "驳斥，推翻（某种观点）" },
+                    { q: "trivial", a: "unimportant / minor / insignificant", cn: "琐碎的，微不足道的" }
+                ],
+                sentences: [
+                    {
+                        raw: "Much of the debate surrounding renewable energy storage centers on whether battery chemistry can advance rapidly enough to offset the intermittent nature of solar and wind power.",
+                        core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>Much of the debate centers on whether battery chemistry can advance</b> <span class='text-slate-400'>rapidly enough to offset the intermittent nature of solar and wind power.</span>",
+                        tip: "💡 剥洋葱技巧：主干是 Much of the debate centers on whether...（争论的核心在于电池化学是否能足够快地进步，以抵消风光发电的间歇性）。"
+                    },
+                    {
+                        raw: "To attribute the decline of native bird species solely to introduced predators is to overlook the pervasive impact of habitat fragmentation caused by agricultural expansion.",
+                        core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>To attribute the decline solely to predators is to overlook the impact of habitat fragmentation</b> <span class='text-slate-400'>caused by agricultural expansion.</span>",
+                        tip: "💡 剥洋葱技巧：To do A is to do B（把鸟类减少仅仅归咎于外来捕食者，就等于忽视了栖息地碎片化的影响）。作者明确反对“唯一归因”！"
+                    },
+                    {
+                        raw: "Only when archaeological excavation techniques were combined with high-resolution satellite imagery did the true extent of the ancient trade network become apparent.",
+                        core: "<span class='text-slate-400'>Only when excavation was combined with satellite imagery</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>did the true extent of the trade network become apparent.</b>",
+                        tip: "💡 剥洋葱技巧：Only when 引导的时间状语从句放句首，后面主句 did the true extent become apparent 采用部分倒装（这时古代贸易网的真实规模才显现出来）。"
+                    },
+                    {
+                        raw: "Despite widespread optimism that remote work would revitalize rural economies, empirical data collected over a three-year period reveals a far more uneven geographical distribution of benefits.",
+                        core: "<span class='text-slate-400'>Despite widespread optimism...,</span> <b class='bg-yellow-200 text-slate-900 px-1 rounded'>empirical data reveals a far more uneven distribution of benefits.</b>",
+                        tip: "💡 剥洋葱技巧：跳过 Despite 引导的让步部分，直接抓主句谓语动词 reveals：实证数据揭示了利益分布极其不均衡。"
+                    },
+                    {
+                        raw: "What distinguishes human language from the communication systems of other primates is our capacity to refer to abstract concepts detached from the immediate physical environment.",
+                        core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>What distinguishes human language is our capacity to refer to abstract concepts</b> <span class='text-slate-400'>detached from the immediate environment.</span>",
+                        tip: "💡 剥洋葱技巧：What 主语从句直接看 is 后面：使人类语言与众不同的是我们指代脱离当前环境的抽象概念的能力。"
+                    },
+                    {
+                        raw: "No sooner had the invasive mussel species established a foothold in the lake than native plankton populations plummeted by nearly seventy percent.",
+                        core: "<b class='bg-yellow-200 text-slate-900 px-1 rounded'>No sooner had the invasive species established a foothold than native plankton plummeted.</b>",
+                        tip: "💡 剥洋葱技巧：No sooner... than... 固定句型（一...就...）：入侵贻贝刚在湖中站稳脚跟，本地浮游生物数量就暴跌了近70%。"
+                    }
+                ]
             }
-        ];
+        };
+
+        // ================= 二、内置周末在家剑桥真题模考卷（含原文、题干、自动批改与同义替换解析） =================
+        const defaultReadingTests = {
+            "Test 1 · 生物与生态篇：The Paradox of Urban Foxes (城市狐狸的悖论)": {
+                tag: "Cambridge Academic Passage · 建议限时 20 分钟",
+                title: "The Paradox of Urban Foxes: Adaptation in Concrete Jungles",
+                paragraphs: [
+                    "<b>Paragraph A:</b> For centuries, the red fox (Vulpes vulpes) was regarded as a quintessential creature of the countryside, elusive and wary of human presence. Yet over the past four decades, wildlife biologists across Europe and North America have documented a striking demographic shift. Thriving populations of foxes now inhabit densely populated metropolitan areas, from London to Toronto. Far from being mere refugees driven out of shrinking rural habitats, these urban colonizers exhibit behavioral and even physical modifications that suggest an active, ongoing evolutionary adaptation to city life.",
+                    "<b>Paragraph B:</b> Dr. Sarah Jenkins and her team at the Institute of Urban Ecology conducted a six-year longitudinal study comparing rural foxes with their city-dwelling counterparts. Contrary to the popular assumption that urban animals rely predominantly on scavenging human food waste from rubbish bins, chemical analysis of fur samples revealed that nearly sixty percent of an urban fox's diet still consists of wild prey—primarily rodents, earthworms, and suburban garden birds. However, the spatial distribution of food in cities—concentrated in backyards and parks—has fundamentally altered their social structure. Whereas rural foxes maintain vast, fiercely defended territories, urban foxes tolerate overlapping ranges and live in smaller, denser family groups.",
+                    "<b>Paragraph C:</b> Even more intriguing are the morphological changes observed in historical skull collections held at natural history museums. By measuring hundreds of fox skulls collected in and around London between 1971 and 2020, evolutionary biologist Kevin Parsons discovered that urban foxes have developed noticeably shorter, wider snouts and slightly smaller braincases compared to rural populations. Parsons attributes the snout modification to biomechanical demands: while rural foxes require long, agile jaws to snap at fast-moving field mice, urban foxes benefit from a stronger bite force capable of crushing stationary, tougher food items found near human settlements.",
+                    "<b>Paragraph D:</b> Cognitive behavioral trials have also challenged conventional wisdom. Researchers placed puzzle boxes containing food in both woodland and suburban locations. Although urban foxes approached the unfamiliar apparatus far more rapidly—demonstrating lower levels of neophobia (fear of the new)—they were surprisingly less persistent in solving the mechanical latches than rural foxes. Scientists hypothesize that because cities offer an abundance of alternative, easily accessible food sources, urban foxes simply abandon difficult foraging tasks prematurely, whereas rural foxes must persevere to survive."
+                ],
+                questions: [
+                    {
+                        id: "q1",
+                        type: "TFNG",
+                        prompt: "1. [判断题 TFNG] Urban foxes moved into cities mainly because their natural rural habitats were destroyed.",
+                        options: ["TRUE", "FALSE", "NOT GIVEN"],
+                        answer: "FALSE",
+                        synonym: "mere refugees driven out of shrinking rural habitats (题干 mainly because... destroyed 与原文 Far from being mere refugees... 直接矛盾)",
+                        explanation: "【定位 Paragraph A 末句】原文明确指出 Far from being mere refugees driven out of shrinking rural habitats（远非仅仅是被赶出萎缩农村栖息地的难民），它们展现出主动适应城市生活的演化特征。因此题干说“主要是因为自然栖息地被破坏被迫进城”与原文直接相反，选 FALSE。"
+                    },
+                    {
+                        id: "q2",
+                        type: "TFNG",
+                        prompt: "2. [判断题 TFNG] More than half of the food consumed by city foxes comes from human garbage.",
+                        options: ["TRUE", "FALSE", "NOT GIVEN"],
+                        answer: "FALSE",
+                        synonym: "More than half = nearly sixty percent; human garbage = rubbish bins",
+                        explanation: "【定位 Paragraph B 第二句】原文指出 Contrary to the popular assumption... nearly sixty percent of an urban fox's diet still consists of wild prey（与大众普遍认为靠翻垃圾桶的假设相反，近60%的饮食仍然是野生猎物）。题干说超过一半来自人类垃圾，选 FALSE。"
+                    },
+                    {
+                        id: "q3",
+                        type: "TFNG",
+                        prompt: "3. [判断题 TFNG] Urban foxes have a higher average life expectancy than rural foxes.",
+                        options: ["TRUE", "FALSE", "NOT GIVEN"],
+                        answer: "NOT GIVEN",
+                        synonym: "life expectancy (平均寿命 - 原文未提及)",
+                        explanation: "【定位全文】全文对比了城乡狐狸的饮食、领地密度、头骨鼻吻形状以及解谜行为，但完全没有提及平均寿命（life expectancy）的对比，切忌自行脑补，选 NOT GIVEN。"
+                    },
+                    {
+                        id: "q4",
+                        type: "MCQ",
+                        prompt: "4. [单选题] According to Kevin Parsons, why have urban foxes developed shorter and wider snouts?",
+                        options: [
+                            "A. To help them catch fast-moving mice in narrow city alleys.",
+                            "B. To generate a more powerful bite for eating harder stationary food.",
+                            "C. To accommodate a larger braincase needed for city navigation."
+                        ],
+                        answer: "B",
+                        synonym: "more powerful bite = stronger bite force; harder = tougher",
+                        explanation: "【定位 Paragraph C 末句】原文指出 urban foxes benefit from a stronger bite force capable of crushing stationary, tougher food items（城市狐狸受益于更强的咬合力，以便咬碎人类聚居地附近固定、更坚硬的食物），对应 B 选项。"
+                    },
+                    {
+                        id: "q5",
+                        type: "MCQ",
+                        prompt: "5. [单选题] What did the puzzle box experiment in Paragraph D reveal about urban foxes?",
+                        options: [
+                            "A. They were more afraid of new objects than woodland foxes.",
+                            "B. They solved the mechanical latches much faster than rural foxes.",
+                            "C. They gave up trying to open the boxes more easily due to abundant alternative food."
+                        ],
+                        answer: "C",
+                        synonym: "gave up... more easily = abandon difficult foraging tasks prematurely",
+                        explanation: "【定位 Paragraph D 后两句】城市狐狸虽然不怕新奇物体（lower neophobia），但解开机械锁的坚持度不如农村狐狸，因为城市有大量其他易获取的食物，它们会过早放弃困难任务（abandon difficult foraging tasks prematurely），对应 C 选项。"
+                    }
+                ]
+            },
+            "Test 2 · 科技与考古篇：Decoding the Antikythera Mechanism (安提基特拉机械破译)": {
+                tag: "Cambridge Academic Passage · 建议限时 20 分钟",
+                title: "Decoding the Antikythera Mechanism: The Ancient Greek Computer",
+                paragraphs: [
+                    "<b>Paragraph A:</b> Recovered in 1901 by sponge divers from a Roman-era shipwreck off the Greek island of Antikythera, a corroded lump of bronze gears baffled historians for over a century. Initially dismissed as a simple navigational astrolabe, the artifact—now known as the Antikythera Mechanism—has since been recognized as the world's oldest known analog computer. Constructed around the second century BCE, its intricate clockwork was capable of tracking the movements of the sun, moon, and five planets known to antiquity, as well as predicting lunar and solar eclipses.",
+                    "<b>Paragraph B:</b> Because the device had fractured into eighty-two fragile fragments submerged beneath the Mediterranean for two millennia, physical disassembly was out of the question. The breakthrough came in 2005 when an international team led by mathematician Tony Freeth employed micro-focus X-ray computed tomography (CT). This non-invasive imaging technique allowed researchers to peer inside the calcified layers and read thousands of hidden Greek inscriptions engraved on the interior bronze plates—essentially the user manual of the ancient machine.",
+                    "<b>Paragraph C:</b> One of the most astonishing features revealed by the CT scans was a pin-and-slot mechanism located on the rear dial. Ancient Greek astronomers knew that the moon's velocity across the sky fluctuates due to its elliptical orbit—moving faster at perigee and slower at apogee. To model this anomaly mechanically, the maker of the Antikythera device mounted two gears slightly off-center, connected by a sliding pin. Many historians of science had previously assumed that such complex epicyclic gearing was not invented until the rise of European cathedral clocks in the fourteenth century.",
+                    "<b>Paragraph D:</b> Despite these advances, debate persists regarding the identity of its creator and its ultimate purpose. While early accounts linked the device to the famed polymath Archimedes of Syracuse, chronological evidence from the shipwreck's coinage suggests it was manufactured several decades after his death, possibly at an academy on the island of Rhodes founded by the Stoic philosopher Posidonius. Moreover, given its delicate construction, scholars largely agree that the mechanism was never intended for practical maritime navigation on rough seas, but rather served as a prestigious pedagogical instrument and a symbol of elite philosophical status."
+                ],
+                questions: [
+                    {
+                        id: "t2q1",
+                        type: "TFNG",
+                        prompt: "1. [判断题 TFNG] When the Antikythera Mechanism was first discovered in 1901, scholars immediately realized its true complexity.",
+                        options: ["TRUE", "FALSE", "NOT GIVEN"],
+                        answer: "FALSE",
+                        synonym: "first discovered = Initially; immediately realized its true complexity 与 dismissed as a simple navigational astrolabe 相反",
+                        explanation: "【定位 Paragraph A 第二句】原文说 Initially dismissed as a simple navigational astrolabe（最初被轻视为一个简单的航海星盘），后来才被承认为最古老的模拟计算机。因此选 FALSE。"
+                    },
+                    {
+                        id: "t2q2",
+                        type: "TFNG",
+                        prompt: "2. [判断题 TFNG] Tony Freeth's team had to carefully take apart some of the bronze fragments to read the interior inscriptions.",
+                        options: ["TRUE", "FALSE", "NOT GIVEN"],
+                        answer: "FALSE",
+                        synonym: "take apart = physical disassembly; non-invasive (无损的/非侵入式的)",
+                        explanation: "【定位 Paragraph B】原文明确指出 physical disassembly was out of the question（物理拆解是完全不可能的），团队使用的是 non-invasive imaging technique（非侵入式X光CT扫描）来读取内部铭文，选 FALSE。"
+                    },
+                    {
+                        id: "t2q3",
+                        type: "TFNG",
+                        prompt: "3. [判断题 TFNG] Posidonius personally built the Antikythera Mechanism without assistance from students.",
+                        options: ["TRUE", "FALSE", "NOT GIVEN"],
+                        answer: "NOT GIVEN",
+                        synonym: "personally built... without assistance (原文未提及是否独自制造)",
+                        explanation: "【定位 Paragraph D】原文只提到可能是在波希多尼（Posidonius）创办的罗德岛学院制造的，但并未提及是他本人亲手独立完成还是有学生协助，选 NOT GIVEN。"
+                    },
+                    {
+                        id: "t2q4",
+                        type: "MCQ",
+                        prompt: "4. [单选题] What was the function of the pin-and-slot mechanism described in Paragraph C?",
+                        options: [
+                            "A. To predict the exact date of European cathedral holidays.",
+                            "B. To simulate the changing speed of the moon along its elliptical orbit.",
+                            "C. To prevent the bronze gears from corroding underwater."
+                        ],
+                        answer: "B",
+                        synonym: "changing speed = velocity... fluctuates; simulate = model",
+                        explanation: "【定位 Paragraph C】原文指出月球在椭圆轨道上的速度会波动（velocity fluctuates），为了在机械上模拟这一异常现象（To model this anomaly mechanically），制造者设计了偏心齿轮与销槽结构，选 B。"
+                    },
+                    {
+                        id: "t2q5",
+                        type: "MCQ",
+                        prompt: "5. [单选题] What do scholars conclude about the main purpose of the Antikythera Mechanism?",
+                        options: [
+                            "A. It was used by Roman captains to steer ships during storms.",
+                            "B. It was a teaching and display tool for wealthy or educated elites.",
+                            "C. It was buried as a religious offering to Greek sea gods."
+                        ],
+                        answer: "B",
+                        synonym: "teaching = pedagogical; wealthy or educated elites = elite philosophical status",
+                        explanation: "【定位 Paragraph D 末句】原文指出该装置并非用于海上实际航行（never intended for practical maritime navigation），而是作为 prestigious pedagogical instrument（负有盛名的教学仪器）和精英地位的象征，选 B。"
+                    }
+                ]
+            }
+        };
+
+        // ================= 三、全局状态管理与存储 =================
+        let allDailyBatches = {};
+        let curBatchKey = "";
+        let curSyn = 0;
         let curSen = 0;
 
+        let allReadingTests = {};
+        let curTestKey = "";
+        let timerInterval;
+
+        function initAppData() {
+            const savedBatches = JSON.parse(localStorage.getItem('ielts_pro_batches') || 'null');
+            allDailyBatches = savedBatches ? { ...defaultDailyBatches, ...savedBatches } : { ...defaultDailyBatches };
+            
+            const savedTests = JSON.parse(localStorage.getItem('ielts_pro_tests') || 'null');
+            allReadingTests = savedTests ? { ...defaultReadingTests, ...savedTests } : { ...defaultReadingTests };
+
+            renderBatchSelector();
+            renderTestSelector();
+            updateAiStatusDot();
+        }
+
+        // 渲染每日批次下拉框
+        function renderBatchSelector(selectedKey) {
+            const keys = Object.keys(allDailyBatches);
+            curBatchKey = selectedKey || keys[keys.length - 1]; // 默认选最新的一批
+            const sel = document.getElementById('day-selector');
+            sel.innerHTML = keys.map(k => `<option value="${k}" ${k === curBatchKey ? 'selected' : ''}>${k} (${allDailyBatches[k].syns.length}词/${allDailyBatches[k].sentences.length}句)</option>`).join('');
+            curSyn = 0;
+            curSen = 0;
+            renderSynCard();
+            renderSentence();
+        }
+
+        function switchDayBatch(key) {
+            curBatchKey = key;
+            curSyn = 0;
+            curSen = 0;
+            renderSynCard();
+            renderSentence();
+        }
+
+        // 渲染闪卡与长难句
+        function renderSynCard() {
+            const list = allDailyBatches[curBatchKey].syns;
+            const item = list[curSyn];
+            document.getElementById('syn-q').innerText = item.q;
+            document.getElementById('syn-a').innerText = item.a;
+            document.getElementById('syn-cn').innerText = item.cn;
+            document.getElementById('syn-answer').classList.add('hidden');
+            document.getElementById('card-progress').innerText = `${curSyn + 1} / ${list.length}`;
+        }
+        function showSynAnswer() { document.getElementById('syn-answer').classList.remove('hidden'); }
+        function nextSynCard() {
+            const list = allDailyBatches[curBatchKey].syns;
+            curSyn = (curSyn + 1) % list.length;
+            renderSynCard();
+        }
+        function prevSynCard() {
+            const list = allDailyBatches[curBatchKey].syns;
+            curSyn = (curSyn - 1 + list.length) % list.length;
+            renderSynCard();
+        }
+
+        function collectCurrentSynToMistake() {
+            const item = allDailyBatches[curBatchKey].syns[curSyn];
+            saveMistakeItem(curBatchKey.split(' ')[0], "同义替换没认出来", `${item.q} = ${item.a} (${item.cn})`);
+            alert(`⭐ 已将【${item.q}】收入错题本！`);
+        }
+
+        function renderSentence() {
+            const list = allDailyBatches[curBatchKey].sentences;
+            const item = list[curSen];
+            document.getElementById('sentence-box').innerHTML = item.raw;
+            document.getElementById('sentence-tip').classList.add('hidden');
+            document.getElementById('sen-progress').innerText = `${curSen + 1} / ${list.length}`;
+        }
+        function highlightCore() {
+            const item = allDailyBatches[curBatchKey].sentences[curSen];
+            document.getElementById('sentence-box').innerHTML = item.core;
+            const tip = document.getElementById('sentence-tip');
+            tip.innerText = item.tip;
+            tip.classList.remove('hidden');
+        }
+        function nextSentence() {
+            const list = allDailyBatches[curBatchKey].sentences;
+            curSen = (curSen + 1) % list.length;
+            renderSentence();
+        }
+        function prevSentence() {
+            const list = allDailyBatches[curBatchKey].sentences;
+            curSen = (curSen - 1 + list.length) % list.length;
+            renderSentence();
+        }
+
+        // ================= 四、周末真题模考舱渲染与自动批改 =================
+        function renderTestSelector(selectedKey) {
+            const keys = Object.keys(allReadingTests);
+            curTestKey = selectedKey || keys[keys.length - 1];
+            const sel = document.getElementById('test-selector');
+            sel.innerHTML = keys.map(k => `<option value="${k}" ${k === curTestKey ? 'selected' : ''}>${k}</option>`).join('');
+            loadReadingTest(curTestKey);
+        }
+
+        function loadReadingTest(key) {
+            curTestKey = key;
+            const test = allReadingTests[key];
+            document.getElementById('passage-tag').innerText = test.tag || "Cambridge Academic Reading";
+            document.getElementById('passage-title').innerText = test.title;
+            document.getElementById('passage-content').innerHTML = test.paragraphs.map(p => `<p class="mb-3">${p}</p>`).join('');
+            document.getElementById('test-score-badge').classList.add('hidden');
+
+            const qContainer = document.getElementById('questions-container');
+            qContainer.innerHTML = test.questions.map((q, idx) => `
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5" id="qbox-${idx}">
+                    <div class="text-sm font-bold text-slate-800">${q.prompt}</div>
+                    <div class="space-y-1.5 pt-1">
+                        ${q.options.map(opt => {
+                            const val = opt.includes('.') ? opt.split('.')[0].trim() : opt;
+                            return `
+                            <label class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-white cursor-pointer border border-transparent hover:border-slate-200 transition">
+                                <input type="radio" name="q-${idx}" value="${val}" class="w-4 h-4 text-indigo-600">
+                                <span class="text-xs sm:text-sm text-slate-700">${opt}</span>
+                            </label>`;
+                        }).join('')}
+                    </div>
+                    <div id="qexp-${idx}" class="hidden mt-3 pt-3 border-t border-slate-200 text-xs space-y-1.5"></div>
+                </div>
+            `).join('');
+        }
+
+        function submitReadingTest() {
+            const test = allReadingTests[curTestKey];
+            let correctCount = 0;
+
+            test.questions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q-${idx}"]:checked`);
+                const userVal = selected ? selected.value : "未作答";
+                const isCorrect = userVal === q.answer;
+                if (isCorrect) correctCount++;
+
+                const expBox = document.getElementById(`qexp-${idx}`);
+                const qBox = document.getElementById(`qbox-${idx}`);
+                qBox.className = `p-4 rounded-xl border-2 space-y-2.5 ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-red-50/40 border-red-200'}`;
+
+                expBox.classList.remove('hidden');
+                expBox.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold ${isCorrect ? 'text-emerald-700' : 'text-red-600'}">
+                            ${isCorrect ? '✅ 回答正确！' : `❌ 答错了（你的答案: ${userVal} | 正确答案: ${q.answer}）`}
+                        </span>
+                        ${!isCorrect ? `<button onclick="saveTestMistake(${idx})" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded font-bold transition">+ 记入错题本</button>` : ''}
+                    </div>
+                    <div class="text-indigo-700 font-semibold bg-indigo-50 p-2 rounded">🔑 核心同义替换：${q.synonym}</div>
+                    <div class="text-slate-600 leading-relaxed">${q.explanation}</div>
+                `;
+            });
+
+            const badge = document.getElementById('test-score-badge');
+            badge.innerText = `本篇得分：${correctCount} / ${test.questions.length}`;
+            badge.classList.remove('hidden');
+            clearInterval(timerInterval);
+        }
+
+        function saveTestMistake(qIdx) {
+            const test = allReadingTests[curTestKey];
+            const q = test.questions[qIdx];
+            saveMistakeItem(test.title.slice(0, 18), "同义替换没认出来", q.synonym);
+            alert("✅ 已将该题的同义替换考点存入错题本！");
+        }
+
+        // ================= 五、AI 动态无限题库生成引擎 =================
+        function openAiModal() {
+            document.getElementById('ai-url').value = localStorage.getItem('ielts_ai_url') || 'https://openrouter.ai/api/v1';
+            document.getElementById('ai-key').value = localStorage.getItem('ielts_ai_key') || '';
+            document.getElementById('ai-model').value = localStorage.getItem('ielts_ai_model') || 'deepseek/deepseek-chat';
+            document.getElementById('ai-modal').classList.remove('hidden');
+        }
+        function closeAiModal() { document.getElementById('ai-modal').classList.add('hidden'); }
+        function saveAiConfig() {
+            localStorage.setItem('ielts_ai_url', document.getElementById('ai-url').value.trim().replace(/\/$/, ''));
+            localStorage.setItem('ielts_ai_key', document.getElementById('ai-key').value.trim());
+            localStorage.setItem('ielts_ai_model', document.getElementById('ai-model').value.trim());
+            updateAiStatusDot();
+            closeAiModal();
+            alert("🎉 AI 题库引擎保存成功！现在您可以随时点击【召唤 AI 生成今日全新词句】或【生成全新真题卷】了！");
+        }
+        function updateAiStatusDot() {
+            const hasKey = !!localStorage.getItem('ielts_ai_key');
+            const dot = document.getElementById('ai-status-dot');
+            dot.className = `w-2 h-2 rounded-full inline-block ${hasKey ? 'bg-emerald-400' : 'bg-amber-400'}`;
+        }
+
+        // 调用 AI 生成新的一天 25 词 + 6 长难句
+        async function generateDailyByAI() {
+            const apiKey = localStorage.getItem('ielts_ai_key');
+            const baseUrl = localStorage.getItem('ielts_ai_url') || 'https://openrouter.ai/api/v1';
+            const model = localStorage.getItem('ielts_ai_model') || 'deepseek/deepseek-chat';
+
+            if (!apiKey) {
+                openAiModal();
+                return alert("请先填入您的 API Key（如 OpenRouter 或 DeepSeek），即可开启每日无限动态题库！");
+            }
+
+            const btn = document.getElementById('btn-gen-daily');
+            const oldText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = "⏳ 正在为您实时生成 25 组全新替换词 + 6 个长难句 (约15秒)...";
+
+            // 收集已有词汇避免重复
+            const existingWords = Object.values(allDailyBatches).flatMap(b => b.syns.map(s => s.q)).slice(-60).join(', ');
+
+            const prompt = `你是一位顶级雅思阅读名师。请为一位目前阅读4.5分、目标6.5+的高二学生生成今日全新的训练批次。
+请严格返回合法的 JSON 格式（不要包含任何 markdown 代码块标记），结构如下：
+{
+  "syns": [
+    {"q": "剑桥题干高频词(不要与 ${existingWords} 重复)", "a": "原文对应的2-3个同义替换词或短语", "cn": "中文释义与考点提示"}
+  ],
+  "sentences": [
+    {
+      "raw": "一句地道的剑桥雅思阅读难度长难句（包含定语从句、让步状语或同位语从句，约25-35词）",
+      "core": "与raw相同，但将次要修饰成分用 <span class='text-slate-400'>...</span> 包裹，将核心主谓宾主干用 <b class='bg-yellow-200 text-slate-900 px-1 rounded'>...</b> 包裹",
+      "tip": "💡 剥洋葱技巧：一句话点拨如何跳过修饰抓主干，并给出全句中文翻译"
+    }
+  ]
+}
+要求：syns 数组必须包含 25 个元素，sentences 数组必须包含 6 个元素。`;
+
+            try {
+                const res = await fetch(`${baseUrl}/chat/completions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                    body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.7 })
+                });
+                const data = await res.json();
+                let content = data.choices[0].message.content.trim().replace(/^```json/i, '').replace(/```$/, '').trim();
+                const parsed = JSON.parse(content);
+
+                const dayNum = Object.keys(allDailyBatches).length + 1;
+                const newKey = `Day ${dayNum} · AI 定制动态特训 (${new Date().toLocaleDateString()})`;
+                allDailyBatches[newKey] = parsed;
+
+                const savedBatches = JSON.parse(localStorage.getItem('ielts_pro_batches') || '{}');
+                savedBatches[newKey] = parsed;
+                localStorage.setItem('ielts_pro_batches', JSON.stringify(savedBatches));
+
+                renderBatchSelector(newKey);
+                alert(`🎉 成功生成【${newKey}】！包含 25 组全新高频同义替换与 6 句长难句！`);
+            } catch (err) {
+                alert("❌ 生成失败，请检查 API 地址、Key 或模型名称是否正确。错误信息：" + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oldText;
+            }
+        }
+
+        // 调用 AI 生成全新周末阅读真题试卷
+        async function generateReadingTestByAI() {
+            const apiKey = localStorage.getItem('ielts_ai_key');
+            const baseUrl = localStorage.getItem('ielts_ai_url') || 'https://openrouter.ai/api/v1';
+            const model = localStorage.getItem('ielts_ai_model') || 'deepseek/deepseek-chat';
+
+            if (!apiKey) {
+                openAiModal();
+                return alert("请先配置 API Key，即可无限生成全新的剑桥同源阅读模考卷！");
+            }
+
+            const btn = document.getElementById('btn-gen-test');
+            const oldText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = "⏳ 正在命题：生成剑桥学术阅读原文与配套真题 (约20秒)...";
+
+            const prompt = `你是一位剑桥雅思阅读官方命题官。请生成一篇全新的雅思学术类阅读篇章（题材可选自考古、海洋生物、心理学、建筑史、环境科学等）及5道配套考题（3道判断题TFNG + 2道单选题MCQ）。
+请严格返回合法的 JSON 格式（不要包含 markdown 代码块标记），结构如下：
+{
+  "tag": "AI 剑桥同源模考卷 · 建议限时 20 分钟",
+  "title": "英文标题 (附中文翻译)",
+  "paragraphs": [
+    "<b>Paragraph A:</b> 约90-110词的地道剑桥雅思学术段落...",
+    "<b>Paragraph B:</b> 约90-110词的地道剑桥雅思学术段落...",
+    "<b>Paragraph C:</b> 约90-110词的地道剑桥雅思学术段落...",
+    "<b>Paragraph D:</b> 约90-110词的地道剑桥雅思学术段落..."
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "type": "TFNG",
+      "prompt": "1. [判断题 TFNG] 英文题干...",
+      "options": ["TRUE", "FALSE", "NOT GIVEN"],
+      "answer": "TRUE 或 FALSE 或 NOT GIVEN",
+      "synonym": "题干词 = 原文同义替换词",
+      "explanation": "【定位 Paragraph X】详细中文解析..."
+    },
+    {
+      "id": "q4",
+      "type": "MCQ",
+      "prompt": "4. [单选题] 英文题干...",
+      "options": ["A. 选项A", "B. 选项B", "C. 选项C"],
+      "answer": "A 或 B 或 C",
+      "synonym": "题干/正确选项词 = 原文同义替换词",
+      "explanation": "【定位 Paragraph X】详细中文解析..."
+    }
+  ]
+}`;
+
+            try {
+                const res = await fetch(`${baseUrl}/chat/completions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                    body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.7 })
+                });
+                const data = await res.json();
+                let content = data.choices[0].message.content.trim().replace(/^```json/i, '').replace(/```$/, '').trim();
+                const parsed = JSON.parse(content);
+
+                const testNum = Object.keys(allReadingTests).length + 1;
+                const newKey = `Test ${testNum} · ${parsed.title}`;
+                allReadingTests[newKey] = parsed;
+
+                const savedTests = JSON.parse(localStorage.getItem('ielts_pro_tests') || '{}');
+                savedTests[newKey] = parsed;
+                localStorage.setItem('ielts_pro_tests', JSON.stringify(savedTests));
+
+                renderTestSelector(newKey);
+                alert(`🎉 全新真题卷【${newKey}】已生成完毕，点击右上角开始20分钟计时做题吧！`);
+            } catch (err) {
+                alert("❌ 生成试卷失败，请检查 API 配置。错误信息：" + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = oldText;
+            }
+        }
+
+        // ================= 六、基础工具：Tab、计时器、错题本、跨端导出 =================
         function switchTab(tab) {
-            ['dashboard', 'school', 'home', 'mistakes'].forEach(t => {
+            ['school', 'home', 'mistakes', 'dashboard'].forEach(t => {
                 document.getElementById('sec-' + t).classList.add('hidden');
                 document.getElementById('tab-' + t).classList.remove('tab-active');
                 document.getElementById('tab-' + t).classList.add('text-slate-500');
@@ -326,31 +970,6 @@
             document.getElementById('tab-' + tab).classList.remove('text-slate-500');
         }
 
-        function renderSynCard() {
-            document.getElementById('syn-q').innerText = synData[curSyn].q;
-            document.getElementById('syn-a').innerText = synData[curSyn].a;
-            document.getElementById('syn-cn').innerText = synData[curSyn].cn;
-            document.getElementById('syn-answer').classList.add('hidden');
-            document.getElementById('card-progress').innerText = (curSyn + 1) + " / " + synData.length;
-        }
-        function showSynAnswer() { document.getElementById('syn-answer').classList.remove('hidden'); }
-        function nextSynCard() { curSyn = (curSyn + 1) % synData.length; renderSynCard(); }
-        function prevSynCard() { curSyn = (curSyn - 1 + synData.length) % synData.length; renderSynCard(); }
-
-        function renderSentence() {
-            document.getElementById('sentence-box').innerHTML = sentences[curSen].raw;
-            document.getElementById('sentence-tip').classList.add('hidden');
-            document.getElementById('sen-progress').innerText = (curSen + 1) + " / " + sentences.length;
-        }
-        function highlightCore() {
-            document.getElementById('sentence-box').innerHTML = sentences[curSen].core;
-            const tip = document.getElementById('sentence-tip');
-            tip.innerText = sentences[curSen].tip;
-            tip.classList.remove('hidden');
-        }
-        function nextSentence() { curSen = (curSen + 1) % sentences.length; renderSentence(); }
-
-        let timerInterval;
         function startTimer(minutes) {
             clearInterval(timerInterval);
             let seconds = minutes * 60;
@@ -361,7 +980,7 @@
                 document.getElementById('timer-display').innerText = `${m}:${s}`;
                 if (seconds <= 0) {
                     clearInterval(timerInterval);
-                    alert("⏰ 时间到！请立即停笔对答案，并把没认出来的同义替换录入错题本！");
+                    alert("⏰ 20分钟时间到！请立即点击下方【交卷判分】，查看同义替换解析！");
                 }
             }, 1000);
         }
@@ -369,41 +988,29 @@
 
         function checkIn() {
             const today = new Date().toLocaleDateString();
-            if (localStorage.getItem('ielts_last_checkin') === today) {
-                return alert("今天已经打过卡啦，继续保持！");
-            }
+            if (localStorage.getItem('ielts_last_checkin') === today) return alert("今天已经打过卡啦，继续加油！");
             let days = parseInt(localStorage.getItem('ielts_streak') || '0') + 1;
             localStorage.setItem('ielts_streak', days);
             localStorage.setItem('ielts_last_checkin', today);
             document.getElementById('streak-days').innerText = days + " 天";
-            alert("🎉 打卡成功！距离雅思 6.5/7.0 又近了一大步！");
+            alert("🎉 打卡成功！每天积累25组替换词，阅读冲上6.5指日可待！");
         }
 
-        function saveTasks() {
-            const states = [1, 2, 3, 4].map(i => document.getElementById('task-' + i).checked);
-            localStorage.setItem('ielts_tasks', JSON.stringify(states));
-        }
-        function loadTasks() {
-            const states = JSON.parse(localStorage.getItem('ielts_tasks') || '[false,false,false,false]');
-            [1, 2, 3, 4].forEach((i, idx) => { document.getElementById('task-' + i).checked = !!states[idx]; });
-        }
-        function resetDailyTasks() {
-            localStorage.setItem('ielts_tasks', '[false,false,false,false]');
-            loadTasks();
+        function saveMistakeItem(source, reason, note) {
+            const mistakes = JSON.parse(localStorage.getItem('ielts_mistakes') || '[]');
+            mistakes.unshift({ id: Date.now(), source, reason, note, date: new Date().toLocaleDateString() });
+            localStorage.setItem('ielts_mistakes', JSON.stringify(mistakes));
+            renderMistakes();
         }
 
         function addMistake() {
             const source = document.getElementById('m-source').value.trim();
             const reason = document.getElementById('m-reason').value;
             const note = document.getElementById('m-note').value.trim();
-            if (!source || !note) return alert("请填写题源和积累的替换词！");
-            
-            const mistakes = JSON.parse(localStorage.getItem('ielts_mistakes') || '[]');
-            mistakes.unshift({ id: Date.now(), source, reason, note, date: new Date().toLocaleDateString() });
-            localStorage.setItem('ielts_mistakes', JSON.stringify(mistakes));
+            if (!source || !note) return alert("请填写题源和同义替换笔记！");
+            saveMistakeItem(source, reason, note);
             document.getElementById('m-source').value = '';
             document.getElementById('m-note').value = '';
-            renderMistakes();
         }
 
         function deleteMistake(id) {
@@ -416,9 +1023,10 @@
         function renderMistakes() {
             const mistakes = JSON.parse(localStorage.getItem('ielts_mistakes') || '[]');
             document.getElementById('mistake-count').innerText = mistakes.length;
+            document.getElementById('nav-mistake-count').innerText = mistakes.length;
             const container = document.getElementById('mistake-list');
             if (mistakes.length === 0) {
-                container.innerHTML = `<div class="text-slate-400 text-xs py-4 text-center">暂无记录，快去做一篇阅读并记录发现的同义替换吧！</div>`;
+                container.innerHTML = `<div class="text-slate-400 text-xs py-4 text-center">暂无错题，在背词或做真题时可一键将薄弱点加入此处！</div>`;
                 return;
             }
             container.innerHTML = mistakes.map(m => `
@@ -428,8 +1036,8 @@
                         <span class="text-slate-800 font-medium ml-1">${m.note}</span>
                     </div>
                     <div class="flex items-center justify-between sm:justify-end gap-3">
-                        <span class="bg-red-50 text-red-600 text-xs px-2.5 py-0.5 rounded-full border border-red-100">${m.reason}</span>
-                        <span class="text-xs text-slate-400">${m.date}</span>
+                        <span class="bg-red-50 text-red-600 text-xs px-2.5 py-0.5 rounded-full border border-red-100 whitespace-nowrap">${m.reason}</span>
+                        <span class="text-xs text-slate-400 whitespace-nowrap">${m.date}</span>
                         <button onclick="deleteMistake(${m.id})" class="text-xs text-slate-400 hover:text-red-500">删除</button>
                     </div>
                 </div>
@@ -439,11 +1047,13 @@
         function exportData() {
             const data = {
                 streak: localStorage.getItem('ielts_streak') || '0',
-                mistakes: JSON.parse(localStorage.getItem('ielts_mistakes') || '[]')
+                mistakes: JSON.parse(localStorage.getItem('ielts_mistakes') || '[]'),
+                batches: JSON.parse(localStorage.getItem('ielts_pro_batches') || '{}'),
+                tests: JSON.parse(localStorage.getItem('ielts_pro_tests') || '{}')
             };
             const code = btoa(encodeURIComponent(JSON.stringify(data)));
             navigator.clipboard.writeText(code).then(() => {
-                alert("✅ 备份码已复制到剪贴板！可粘贴到微信发给另一台设备导入。");
+                alert("✅ 完整学习数据（含AI生成的题库与错题）已复制！可发到微信在另一台设备上导入。");
             }).catch(() => {
                 prompt("请手动全选复制以下备份码：", code);
             });
@@ -456,18 +1066,18 @@
                 const data = JSON.parse(decodeURIComponent(atob(code.trim())));
                 if (data.streak) localStorage.setItem('ielts_streak', data.streak);
                 if (data.mistakes) localStorage.setItem('ielts_mistakes', JSON.stringify(data.mistakes));
+                if (data.batches) localStorage.setItem('ielts_pro_batches', JSON.stringify(data.batches));
+                if (data.tests) localStorage.setItem('ielts_pro_tests', JSON.stringify(data.tests));
                 window.onload();
-                alert("🎉 数据同步成功！");
+                alert("🎉 跨设备题库与错题同步成功！");
             } catch (e) {
-                alert("❌ 备份码格式有误，请重新复制！");
+                alert("❌ 备份码格式有误！");
             }
         }
 
         window.onload = () => {
             document.getElementById('streak-days').innerText = (localStorage.getItem('ielts_streak') || '0') + " 天";
-            loadTasks();
-            renderSynCard();
-            renderSentence();
+            initAppData();
             renderMistakes();
         };
     </script>
